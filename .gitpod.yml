@@ -10,9 +10,9 @@ vscode:
     - ms-azuretools.vscode-azurefunctions
 
 ports:
-  - name: Expo Go
-    description: Expo Go
-    port: 19000
+  - name: KnightLife
+    description: Knight Life App
+    port: 4280
     visibility: public
 
 github:
