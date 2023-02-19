@@ -8,7 +8,7 @@ tasks:
       cd ../app &&
       npm install &&
       cd .. &&
-      npm install &&
+      npm install
 
 vscode:
   extensions:
