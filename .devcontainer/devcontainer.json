@@ -4,6 +4,12 @@
     "features": {
         "ghcr.io/devcontainers/features/node:1": {
             "version": "lts"
+		},
+		"ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": ["ms-azuretools.vscode-azurefunctions"]
         }
     }
 }
