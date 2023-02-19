@@ -3,12 +3,7 @@ image:
 
 tasks:
   - init:
-      cd api &&
-      npm install &&
-      cd ../app &&
-      npm install &&
-      cd .. &&
-      npm install
+      init.sh
 
 vscode:
   extensions:
