@@ -9,6 +9,12 @@ vscode:
   extensions:
     - ms-azuretools.vscode-azurefunctions
 
+ports:
+  - name: Expo Go
+    description: Expo Go
+    port: 19000
+    visibility: public
+
 github:
   prebuilds:
     # enable for the default branch (defaults to true)
