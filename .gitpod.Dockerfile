@@ -1,4 +1,4 @@
-FROM gitpod/workspace-full
+FROM gitpod/workspace-node
 
 # Install Azure Function Core Tools
 RUN npm i -g azure-functions-core-tools@3 --unsafe-perm true
