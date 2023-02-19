@@ -9,11 +9,11 @@
     "web": "export NODE_OPTIONS=--openssl-legacy-provider && expo start --web"
   },
   "dependencies": {
-    "expo": "~47.0.12",
-    "expo-status-bar": "~1.4.2",
-    "react": "18.1.0",
-    "react-dom": "18.1.0",
-    "react-native": "0.70.5",
+    "expo": "~48.0.0",
+    "expo-status-bar": "~1.4.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.71.3",
     "react-native-web": "~0.18.9"
   },
   "devDependencies": {
@@ -21,7 +21,7 @@
     "@types/react": "~18.0.14",
     "@types/react-native": "~0.70.6",
     "typescript": "^4.6.3",
-    "@expo/webpack-config": "^0.17.4"
+    "@expo/webpack-config": "^18.0.1"
   },
   "private": true
 }
