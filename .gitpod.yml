@@ -3,7 +3,7 @@ image:
 
 tasks:
   - init:
-      init.sh
+      ./init.sh
 
 vscode:
   extensions:
