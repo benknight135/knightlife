@@ -1,4 +1,3 @@
 {
-    "build": { "dockerfile": "Dockerfile" },
-    "postStartCommand": "cd /workspaces/knightlife/KnightLife && npm install"
+    "build": { "dockerfile": "Dockerfile" }
 }
