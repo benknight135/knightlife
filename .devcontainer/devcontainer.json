@@ -1,0 +1,9 @@
+{
+    "name": "KnightLife Development",
+    "dockerComposeFile": [
+		"docker-compose.yml"
+	],
+    "service": "knightlife",
+    "workspaceFolder": "/root/workspace",
+    "forwardPorts": [ 19000, 19001, 19002 ]
+}

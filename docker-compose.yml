@@ -1,0 +1,6 @@
+services:
+  knightlife:
+    image: knightlife
+    build:
+      context: .
+      dockerfile: ./Dockerfile
