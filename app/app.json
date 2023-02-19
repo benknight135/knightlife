@@ -29,6 +29,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5bf52038-3fd4-4412-a315-bd3761bd6988"
+      }
+    },
+    "owner": "benknight135"
   }
 }
