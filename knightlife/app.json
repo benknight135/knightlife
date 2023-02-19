@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "KnightLife",
-    "slug": "KnightLife",
+    "name": "knightlife",
+    "slug": "knightlife",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
