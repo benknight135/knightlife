@@ -1,3 +1,9 @@
 {
-    "build": { "dockerfile": "Dockerfile" }
+    "name": "knightlife",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "latest"
+        }
+    }
 }
