@@ -4,28 +4,18 @@
         {
             "label": "Init",
             "type": "shell",
-            "command": "./init.sh",
-            "group": "none"
+            "command": "./init.sh"
         },
         {
             "label": "Start",
             "type": "shell",
             "command": "npm start",
-            "group": "none",
             "dependsOn": ["Init"]
         },
         {
             "label": "Init & Start",
             "type": "shell",
             "command": "npm start",
-            "group": "none",
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            },
-            "runOptions": {
-                "runOn": "folderOpen",
-            },
             "dependsOn": ["Init", "Start"]
         }
     ]
