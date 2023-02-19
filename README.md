@@ -1,2 +1,2 @@
 # Knight Life
-Life monitor app
+Monitor for the data of life

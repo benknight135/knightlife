@@ -1,7 +1,7 @@
 {
-    "name": "knightlife",
+    "name": "knightlife-dev",
     "version": "1.0.0",
-    "description": "Life monitor app",
+    "description": "Knight Life Development",
     "main": "index.js",
     "scripts": {
       "start-api": "cd api && npm start",

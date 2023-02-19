@@ -3,6 +3,7 @@
     "name": "knightlife",
     "slug": "knightlife",
     "version": "1.0.0",
+    "description": "Knight Life App",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
