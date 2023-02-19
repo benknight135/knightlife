@@ -12,5 +12,6 @@
             "extensions": ["ms-azuretools.vscode-azurefunctions"]
         }
     },
-    "remoteEnv": {"NODE_OPTIONS": "--openssl-legacy-provider"}
+    "remoteEnv": {"NODE_OPTIONS": "--openssl-legacy-provider"},
+	    "postCreateCommand": "./init.sh"
 }
