@@ -34,12 +34,13 @@ export default function App() {
       const requestData = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blaa: "test" })
+        body: JSON.stringify({ })
       };
       const response = await fetch(apiVersionEndpoint, requestData);
       try {
         const json = await response.json();
-        setAPIVersion(json.version);
+        console.log(json);
+        setAPIVersion({version: json.version});
       } catch (error) {
         console.log(response);
         console.error(error);

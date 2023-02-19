@@ -8,7 +8,7 @@
         "start-app": "cd app && npm run web",
         "start-dev": "concurrently \"npm:start-api\" \"npm:start-app\" ",
         "start-swa": "swa start http://127.0.0.1:19006 --api-location http://127.0.0.1:7071",
-        "start": " npm run start-dev && npm run swa-up"
+        "start": "concurrently \"npm:start-dev\" \"npm:start-swa\" "
     },
     "repository": {
         "type": "git",
