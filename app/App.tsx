@@ -26,15 +26,26 @@ export default function App() {
     tinkRedirectURI = "https%3A%2F%2Fconsole.tink.com%2Fcallback";
   }
 
-  const apiBaseURl = "http://localhost:7071/api"
+  const apiBaseURl = "/api"
   const apiVersionEndpoint = apiBaseURl + "/Version"
 
   const getAPIVersion = async () => {
     try {
-      const response = await fetch(apiVersionEndpoint);
-      const json = await response.json();
-      setAPIVersion(json.movies);
+      const requestData = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blaa: "test" })
+      };
+      const response = await fetch(apiVersionEndpoint, requestData);
+      try {
+        const json = await response.json();
+        setAPIVersion(json.version);
+      } catch (error) {
+        console.log(response);
+        console.error(error);
+      }
     } catch (error) {
+      console.error("failed to fetch");
       console.error(error);
     } finally {
       setLoadingAPIVersion(false);
