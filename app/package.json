@@ -4,10 +4,10 @@
   "description": "Monitor for the data of life",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "export NODE_OPTIONS=--openssl-legacy-provider && expo start",
-    "android": "export NODE_OPTIONS=--openssl-legacy-provider && expo start --android",
-    "ios": "export NODE_OPTIONS=--openssl-legacy-provider && expo start --ios",
-    "web": "export NODE_OPTIONS=--openssl-legacy-provider && expo start --web"
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
   },
   "dependencies": {
     "expo": "~48.0.0",
