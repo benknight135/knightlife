@@ -36,6 +36,7 @@ useEffect(() => {
         const response = await fetch(apiEndpoint, requestData);
         try {
             const json = await response.json();
+            // TODO proces response for bank auth api to get auth token
             setAuthToken(json.token);
         } catch (error) {
             console.error(error);
@@ -58,6 +59,7 @@ const BankView = ({appStartURL}: BankViewProps) => {
     var bankCode: string | null = bankCodeFromURL(appStartURL);
     console.log(appStartURL);
     if (bankCode != null){
+        // TODO replace with bank auth api endpoint
         const { authToken, isLoadingAuthToken } = useBankAuthToken("/api/Version");
         if (isLoadingAuthToken){
             return <Text>{"Bank token:" + authToken}</Text>
