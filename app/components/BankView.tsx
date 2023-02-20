@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Text, ActivityIndicator } from 'react-native';
-import BankConnectButton, { AuthService } from './BankConnectButton';
+import { Text } from 'react-native';
+import BankConnectButton, { OpenBankingApi } from './BankConnectButton';
+import BankAccountList from './BankAccountList';
 
 type BankViewProps = {
-    appStartURL: URL | null
+    appStartURL: URL | null,
+    openBankingApi: OpenBankingApi;
 };
 
 function authCodeFromURL(url: URL | null): string | null {
@@ -11,48 +13,50 @@ function authCodeFromURL(url: URL | null): string | null {
         return null;
     }
     // only process code if correct callback is in url e.g. https://X.X.X/bankConnectCallback
-    console.log(url.pathname);
     if (url.pathname != "/bankConnectCallback"){
         return null;
     }
     const urlParams: URLSearchParams = new URLSearchParams(url.search);
     const code: string | null = urlParams.get("code");
-    console.log(code);
     return code;
 }
   
-const useBankAuthToken = (apiEndpoint: string, authCode: string) => {
+const useBankAuthToken = (apiEndpoint: URL | null, authCode: string) => {
     const [isLoadingAuthToken, setLoadingAuthToken] = useState<boolean>(true);
     const [authToken, setAuthToken] = useState<string | null>(null);
 
     useEffect(() => {
         const getAuthTokenAsync = async () => {
-        try {
-            const requestData = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(
-                    {
-                        grant_type: "authorization_code",
-                        client_id: "sandbox-knightlife-c74f1f",
-                        client_secret: "4bf70dd5-2b6e-4a8e-ae84-3a55f5c68340", // TODO replace with secret env varibale or something
-                        redirect_uri: "https://console.truelayer.com/redirect-page",
-                        code: authCode
-                    }
-                )
-            };
-            const response = await fetch(apiEndpoint, requestData);
+            if (apiEndpoint == null){
+                setAuthToken(null);
+                setLoadingAuthToken(false);
+                return;
+            }
             try {
-                const json = await response.json();
-                setAuthToken(json.access_token);
+                const requestBody = {
+                    grant_type: "authorization_code",
+                    client_id: "sandbox-knightlife-c74f1f",
+                    client_secret: "4bf70dd5-2b6e-4a8e-ae84-3a55f5c68340", // TODO replace with secret env varibale or something
+                    // redirect_uri: "https://console.truelayer.com/redirect-page", // https://console.tink.com/callback
+                    code: authCode
+                }
+                const requestData = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                };
+                const response = await fetch(apiEndpoint, requestData);
+                try {
+                    const json = await response.json();
+                    setAuthToken(json.access_token);
+                } catch (error) {
+                    console.error(error);
+                }
             } catch (error) {
                 console.error(error);
+            } finally {
+                setLoadingAuthToken(false);
             }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoadingAuthToken(false);
-        }
         };
 
         getAuthTokenAsync();
@@ -61,16 +65,31 @@ const useBankAuthToken = (apiEndpoint: string, authCode: string) => {
     return { authToken, isLoadingAuthToken };
 };
 
-const BankView = ({appStartURL}: BankViewProps) => {
-    const authService: AuthService = AuthService.TrueLayer;
+const BankView = ({appStartURL, openBankingApi}: BankViewProps) => {
+    
     var authCode: string | null = authCodeFromURL(appStartURL);
-    console.log(appStartURL);
     if (authCode != null){
-        // TODO replace with bank auth api endpoint
-        const apiEndpoint = "https://auth.truelayer-sandbox.com/connect/token";
+        var apiEndpoint: URL | null = null;
+        switch(openBankingApi){
+            case OpenBankingApi.TrueLayer:
+                apiEndpoint = new URL("https://auth.truelayer-sandbox.com/connect/token");
+                break;
+            case OpenBankingApi.Tink:
+                apiEndpoint = new URL("https://api.tink.com/api/v1/oauth/token");
+                break;
+            default:
+                var error = "Open Bankking API " + openBankingApi + " not implimented";
+                console.error(error);
+                break;
+        }
         const { authToken, isLoadingAuthToken } = useBankAuthToken(apiEndpoint, authCode);
         if (isLoadingAuthToken){
-            return <Text>{"Bank auth token:" + authToken}</Text>
+            return (
+                <BankAccountList
+                    authToken={authToken}
+                    openBankingApi={openBankingApi}
+                />
+            )
         } else {
             return <Text>{"Bank auth code:" + authCode}</Text>
         }
@@ -78,9 +97,10 @@ const BankView = ({appStartURL}: BankViewProps) => {
     
     return <BankConnectButton
         title='Connect Bank'
-        authService={authService}
+        openBankingApi={openBankingApi}
         redirectUri={appStartURL + "bankConnectCallback"}
     />
 };
 
 export default BankView;
+export { OpenBankingApi };
