@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Linking, ActivityIndicator } from 'react-native';
-import * as path from 'path';
 import { StatusBar } from 'expo-status-bar';
 import BankView from './components/BankView';
 
