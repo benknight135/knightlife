@@ -7,7 +7,7 @@ type BankAccoutLinkProps = {
     authToken: string | null;
 };
 
-const useAccountList = (apiEndpoint: URL | null, authToken: string, ) => {
+const useAccountList = (apiEndpoint: string, authToken: string, openBankingApi: OpenBankingApi) => {
     const [isLoadingAccountList, setLoadingAccoutList] = useState<boolean>(true);
     const [accountList, setAccountList] = useState<string | null>(null);
 
@@ -19,9 +19,12 @@ const useAccountList = (apiEndpoint: URL | null, authToken: string, ) => {
                 return;
             }
             try {
-                let headers = new Headers();
-                headers.append("Authorization", "Bearer " + authToken);
-                const requestBody = {}
+                // let headers = new Headers();
+                // headers.append("Authorization", "Bearer " + authToken);
+                const requestBody = {
+                    token: authToken,
+                    openBankingApi: openBankingApi
+                }
                 const requestData = {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -30,7 +33,7 @@ const useAccountList = (apiEndpoint: URL | null, authToken: string, ) => {
                 const response = await fetch(apiEndpoint, requestData);
                 try {
                     const json = await response.json();
-                    setAccountList(json.access_token);
+                    setAccountList(json.results);
                 } catch (error) {
                     console.error(error);
                 }
@@ -49,20 +52,20 @@ const useAccountList = (apiEndpoint: URL | null, authToken: string, ) => {
 
 const BankAccountList = ({openBankingApi, authToken}: BankAccoutLinkProps) => {
     if (authToken != null){
-        var apiEndpoint: URL | null = null;
-        switch(openBankingApi){
-            case OpenBankingApi.TrueLayer:
-                apiEndpoint = new URL("https://api.truelayer.com/data/v1/accounts");
-                break;
-            case OpenBankingApi.Tink:
-                apiEndpoint = new URL("https://api.tink.com/data/v2/accounts");
-                break;
-            default:
-                var error = "Open Bankking API " + openBankingApi + " not implimented";
-                console.error(error);
-                break;
-        }
-        const { accountList, isLoadingAccountList } = useAccountList(apiEndpoint, authToken);
+        var apiEndpoint: string = "/api/BankAccounts";
+        // switch(openBankingApi){
+        //     case OpenBankingApi.TrueLayer:
+        //         apiEndpoint = new URL("https://api.truelayer.com/data/v1/accounts");
+        //         break;
+        //     case OpenBankingApi.Tink:
+        //         apiEndpoint = new URL("https://api.tink.com/data/v2/accounts");
+        //         break;
+        //     default:
+        //         var error = "Open Bankking API " + openBankingApi + " not implimented";
+        //         console.error(error);
+        //         break;
+        // }
+        const { accountList, isLoadingAccountList } = useAccountList(apiEndpoint, authToken, openBankingApi);
         if (isLoadingAccountList){
             return <ActivityIndicator />
         } else {

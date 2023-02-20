@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
-    context.log('HTTP trigger function processed a bank token request.');
+    context.log('HTTP trigger function processed a bank accounts request.');
 
     if (!req.body){
         var reason = "Missing request body";
@@ -14,11 +14,11 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
     context.log(req.body);
 
-    var code = req.body.code;
+    var token = req.body.token;
     var openBankingApi = req.body.openBankingApi;
-    if (!code || !openBankingApi){
+    if (!token || !openBankingApi){
         var reason = "Missing parameters: ";
-        if (!code) { reason += " code ";}
+        if (!token) { reason += " token ";}
         if (!openBankingApi) { reason += " openBankingApi ";}
         context.log(reason);
         context.res = {
@@ -38,13 +38,13 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         return;
     }
 
-    context.log('Getting token from code: ' + code);
+    context.log('Getting accouts using token: ' + token);
 
     var apiEndpoint: string;
     if (openBankingApi == "Tink"){
-        apiEndpoint = "https://api.tink.com/api/v1/oauth/token";
+        apiEndpoint = "https://api.tink.com/data/v2/accounts";
     } else if (openBankingApi == "TrueLayer"){
-        apiEndpoint = "https://auth.truelayer-sandbox.com/connect/token";
+        apiEndpoint = "https://api.truelayer.com/data/v1/accounts";
     } else {
         var reason = "openBankingApi: expected 'Tink' / 'TrueLayer' got '" + openBankingApi + "'";
         context.log(reason);
@@ -54,14 +54,11 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         };
         return;
     }
-
-    const requestBody = {
-        grant_type: "authorization_code",
-        client_id: "sandbox-knightlife-c74f1f",
-        client_secret: "42485d39-d77e-4d7e-a24e-fded84cdd7f7", // TODO replace with secret env variable or something
-        redirect_uri: "https://console.truelayer-sandbox.com/redirect-page", // https://console.tink.com/callback
-        code: code
-    }
+    
+    let headers = new Headers();
+    headers.append("Authorization", "Bearer " + token);
+    
+    const requestBody = {}
     const requestData = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -72,23 +69,13 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         const response = await fetch(apiEndpoint, requestData);
         try {
             const json = await response.json();
-            context.log(response.status);
-            if (response.status != 200){
-                var reason: string = "Invalid response: " + JSON.stringify(json);
-                context.log(reason);
-                context.res = {
-                    status: 400,
-                    body: { reason: reason }
-                };
-                return;
-            }
-            context.log("Valid response: " + JSON.stringify(json));
-            var access_token = json.access_token;
-            context.log("Returning access_token: " + access_token);
+            context.log(json);
+            var results = json.results;
+            context.log("Returning results: " + results);
             context.res = {
                 status: 200,
                 body: {
-                    access_token: access_token
+                    results: results
                 }
             };
             return;
@@ -110,6 +97,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         };
         return;
     }
+
 };
 
 export default httpTrigger;
