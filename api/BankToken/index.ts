@@ -41,10 +41,19 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     context.log('Getting token from code: ' + code);
 
     var apiEndpoint: string;
+    var client_id: string;
+    var client_secret: string;
+    var redirect_uri: string;
     if (openBankingApi == "Tink"){
         apiEndpoint = "https://api.tink.com/api/v1/oauth/token";
+        client_id = "sandbox-knightlife-c74f1f";
+        client_secret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
+        redirect_uri = "https://console.truelayer-sandbox.com/redirect-page";
     } else if (openBankingApi == "TrueLayer"){
         apiEndpoint = "https://auth.truelayer-sandbox.com/connect/token";
+        client_id = "sandbox-knightlife-c74f1f";
+        client_secret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
+        redirect_uri = "https://console.truelayer-sandbox.com/redirect-page";
     } else {
         var reason = "openBankingApi: expected 'Tink' / 'TrueLayer' got '" + openBankingApi + "'";
         context.log(reason);
@@ -54,6 +63,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         };
         return;
     }
+
 
     const requestBody = {
         grant_type: "authorization_code",
