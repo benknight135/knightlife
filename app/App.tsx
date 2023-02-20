@@ -1,75 +1,93 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Linking, ActivityIndicator } from 'react-native';
+import * as path from 'path';
 import { StatusBar } from 'expo-status-bar';
-import BankConnectButton from './components/BankConnectButton';
+import BankView from './components/BankView';
 
 type APIVersion = {
   version: string;
 };
 
-export default function App() {
-  const [isLoadingAPIVersion, setLoadingAPIVersion] = useState(true);
-  const [apiVersion, setAPIVersion] = useState<APIVersion>({version: "0.0.0.0"});
-
-  const tinkClientId: string = "e510fbadcd714f7ca5ef141d4923f6c1"
-  var tinkRedirectURI: string = "";
-  if (Platform.OS === 'ios') {
-    // TODO use mobile app uri callback
-    // https://stackoverflow.com/questions/17427707/whats-the-right-oauth-2-0-flow-for-a-mobile-app
-    tinkRedirectURI = "";
-  } else if (Platform.OS === 'android') {
-    // TODO use mobile app uri callback
-    // https://stackoverflow.com/questions/17427707/whats-the-right-oauth-2-0-flow-for-a-mobile-app
-    tinkRedirectURI = "";
-  } else if (Platform.OS === 'web') {
-    tinkRedirectURI = "https%3A%2F%2Fconsole.tink.com%2Fcallback";
-  }
-
-  const apiBaseURl = "/api"
-  const apiVersionEndpoint = apiBaseURl + "/Version"
-
-  const getAPIVersion = async () => {
-    try {
-      const requestData = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ })
-      };
-      const response = await fetch(apiVersionEndpoint, requestData);
-      try {
-        const json = await response.json();
-        console.log(json);
-        setAPIVersion({version: json.version});
-      } catch (error) {
-        console.log(response);
-        console.error(error);
-      }
-    } catch (error) {
-      console.error("failed to fetch");
-      console.error(error);
-    } finally {
-      setLoadingAPIVersion(false);
-    }
-  };
+const useAppStartURL = () => {
+  const [url, setUrl] = useState<URL | null>(null);
+  const [processing, setProcessing] = useState(true);
 
   useEffect(() => {
-    getAPIVersion();
+    const getUrlAsync = async () => {
+      // Get the deep link used to open the app
+      const initialUrl: string | null = await Linking.getInitialURL();
+      if (initialUrl == null){
+        setUrl(null);
+      } else {
+        setUrl(new URL(initialUrl));
+      }
+      setProcessing(false);
+    };
+
+    getUrlAsync();
   }, []);
-  
+
+  return { url, processing };
+};
+
+
+const useAPIVerrsion = (apiVersionEndpoint: string) => {
+  const [isLoadingAPIVersion, setLoadingAPIVersion] = useState<boolean>(true);
+  const [apiVersion, setAPIVersion] = useState<APIVersion>({ version: "0.0.0.0" });
+
+  useEffect(() => {
+    const getAPIVersionAsync = async () => {
+      try {
+        const requestData = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        };
+        const response = await fetch(apiVersionEndpoint, requestData);
+        try {
+          const json = await response.json();
+          setAPIVersion({ version: json.version });
+        } catch (error) {
+          console.error(error);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoadingAPIVersion(false);
+      }
+    };
+
+    getAPIVersionAsync();
+  }, []);
+
+  return { apiVersion, isLoadingAPIVersion };
+};
+
+export default function App() {
+  const apiBaseURl: string = "/api";
+  const apiVersionEndpoint: string = apiBaseURl + "/Version";
+
+  const { url: appStartURL, processing: isLoadingAppStartURL } = useAppStartURL();
+  const { apiVersion, isLoadingAPIVersion } = useAPIVerrsion(apiVersionEndpoint);
+
   return (
     <View style={styles.container}>
       <Text>Knight Life</Text>
-      <BankConnectButton
-        title='Connect Bank'
-        tinkClientId={tinkClientId}
-        tinkRedirectUri={tinkRedirectURI}
-      />
       {isLoadingAPIVersion ? (
         <ActivityIndicator />
       ) : (
         <Text>{apiVersion.version}</Text>
       )}
+
+      {isLoadingAppStartURL ? (
+        <ActivityIndicator />
+      ) : (
+        <BankView
+          appStartURL={appStartURL}
+        />
+      )}
+
       <StatusBar style="auto" />
     </View>
   );
