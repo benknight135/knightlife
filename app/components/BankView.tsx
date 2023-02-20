@@ -6,7 +6,7 @@ type BankViewProps = {
     appStartURL: URL | null
 };
 
-function bankCodeFromURL(url: URL | null): string | null {
+function authCodeFromURL(url: URL | null): string | null {
     if (url == null){
         return null;
     }
@@ -21,54 +21,58 @@ function bankCodeFromURL(url: URL | null): string | null {
     return code;
 }
   
-const useBankAuthToken = (apiEndpoint: string) => {
-const [isLoadingAuthToken, setLoadingAuthToken] = useState<boolean>(true);
-const [authToken, setAuthToken] = useState<string | null>(null);
+const useBankAuthToken = (apiEndpoint: string, authCode: string) => {
+    const [isLoadingAuthToken, setLoadingAuthToken] = useState<boolean>(true);
+    const [authToken, setAuthToken] = useState<string | null>(null);
 
-useEffect(() => {
-    const getAuthTokenAsync = async () => {
-    try {
-        const requestData = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(
-            {
-                grant_type: "authorization_code",
-            }
-            
-        };
-        const response = await fetch(apiEndpoint, requestData);
+    useEffect(() => {
+        const getAuthTokenAsync = async () => {
         try {
-            const json = await response.json();
-            setAuthToken(json.access_token);
+            const requestData = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(
+                    {
+                        grant_type: "authorization_code",
+                        client_id: "sandbox-knightlife-c74f1f",
+                        client_secret: "4bf70dd5-2b6e-4a8e-ae84-3a55f5c68340", // TODO replace with secret env varibale or something
+                        redirect_uri: "https://console.truelayer.com/redirect-page",
+                        code: authCode
+                    }
+                )
+            };
+            const response = await fetch(apiEndpoint, requestData);
+            try {
+                const json = await response.json();
+                setAuthToken(json.access_token);
+            } catch (error) {
+                console.error(error);
+            }
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoadingAuthToken(false);
         }
-    } catch (error) {
-        console.error(error);
-    } finally {
-        setLoadingAuthToken(false);
-    }
-    };
+        };
 
-    getAuthTokenAsync();
-}, []);
+        getAuthTokenAsync();
+    }, []);
 
-return { authToken, isLoadingAuthToken };
+    return { authToken, isLoadingAuthToken };
 };
 
 const BankView = ({appStartURL}: BankViewProps) => {
     const authService: AuthService = AuthService.TrueLayer;
-    var bankCode: string | null = bankCodeFromURL(appStartURL);
+    var authCode: string | null = authCodeFromURL(appStartURL);
     console.log(appStartURL);
-    if (bankCode != null){
+    if (authCode != null){
         // TODO replace with bank auth api endpoint
         const apiEndpoint = "https://auth.truelayer-sandbox.com/connect/token";
-        const { authToken, isLoadingAuthToken } = useBankAuthToken(apiEndpoint);
+        const { authToken, isLoadingAuthToken } = useBankAuthToken(apiEndpoint, authCode);
         if (isLoadingAuthToken){
-            return <Text>{"Bank token response:" + authToken}</Text>
+            return <Text>{"Bank auth token:" + authToken}</Text>
         } else {
-            return <Text>{"Bank code:" + bankCode}</Text>
+            return <Text>{"Bank auth code:" + authCode}</Text>
         }
     }
     

@@ -16,6 +16,7 @@ const useAppStartURL = () => {
     const getUrlAsync = async () => {
       // Get the deep link used to open the app
       const initialUrl: string | null = await Linking.getInitialURL();
+      console.log(initialUrl);
       if (initialUrl == null){
         setUrl(null);
       } else {
