@@ -31,13 +31,16 @@ useEffect(() => {
         const requestData = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({})
+            body: JSON.stringify(
+            {
+                grant_type: "authorization_code",
+            }
+            
         };
         const response = await fetch(apiEndpoint, requestData);
         try {
             const json = await response.json();
-            // TODO proces response for bank auth api to get auth token
-            setAuthToken(json.token);
+            setAuthToken(json.access_token);
         } catch (error) {
             console.error(error);
         }
@@ -60,9 +63,10 @@ const BankView = ({appStartURL}: BankViewProps) => {
     console.log(appStartURL);
     if (bankCode != null){
         // TODO replace with bank auth api endpoint
-        const { authToken, isLoadingAuthToken } = useBankAuthToken("/api/Version");
+        const apiEndpoint = "https://auth.truelayer-sandbox.com/connect/token";
+        const { authToken, isLoadingAuthToken } = useBankAuthToken(apiEndpoint);
         if (isLoadingAuthToken){
-            return <Text>{"Bank token:" + authToken}</Text>
+            return <Text>{"Bank token response:" + authToken}</Text>
         } else {
             return <Text>{"Bank code:" + bankCode}</Text>
         }
