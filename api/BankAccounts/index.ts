@@ -1,4 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
+import { OpenBankingApiConfig, OpenBankingApiHelper } from "../Shared/Banking";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a bank accounts request.');
@@ -12,14 +13,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         };
     }
 
-    context.log(req.body);
-
     var token = req.body.token;
-    var openBankingApi = req.body.openBankingApi;
-    if (!token || !openBankingApi){
+    var openBankingApiConfigReq = req.body.openBankingApiConfig;
+    if (!token || !openBankingApiConfigReq){
         var reason = "Missing parameters: ";
         if (!token) { reason += " token ";}
-        if (!openBankingApi) { reason += " openBankingApi ";}
+        if (!openBankingApiConfigReq) { reason += " openBankingApiConfig ";}
         context.log(reason);
         context.res = {
             status: 400,
@@ -28,44 +27,16 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         return;
     }
 
-    if (openBankingApi != "Tink" && openBankingApi != "TrueLayer"){
-        var reason = "openBankingApi: expected 'Tink' / 'TrueLayer' got '" + openBankingApi + "'";
-        context.log(reason);
-        context.res = {
-            status: 400,
-            body: { reason: reason }
-        };
-        return;
-    }
+    var openBankingApiConfig: OpenBankingApiConfig = Object.assign(openBankingApiConfigReq);
 
-    context.log('Getting accounts using token: ' + token);
-
-    var apiEndpoint: string;
-    if (openBankingApi == "Tink"){
-        apiEndpoint = "https://api.tink.com/data/v2/accounts";
-    } else if (openBankingApi == "TrueLayer"){
-        apiEndpoint = "https://api.truelayer-sandbox.com/data/v1/accounts";
-    } else {
-        var reason = "openBankingApi: expected 'Tink' / 'TrueLayer' got '" + openBankingApi + "'";
-        context.log(reason);
-        context.res = {
-            status: 400,
-            body: { reason: reason }
-        };
-        return;
-    }
-
-    const requestData = {
-        headers: {"Authorization": "Bearer " + token}
-    };
+    var accountsUrl = OpenBankingApiHelper.getAccountsUrl(openBankingApiConfig);
+    var requestData = OpenBankingApiHelper.generateAccountsRequestData(token);
 
     try {
-        const response = await fetch(apiEndpoint, requestData);
+        const response = await fetch(accountsUrl, requestData);
         try {
             const json = await response.json();
-            context.log(json);
             var results = json.results;
-            context.log("Returning results: " + results);
             context.res = {
                 status: 200,
                 body: {

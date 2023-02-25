@@ -1,4 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
+import { OpenBankingApiProivder, OpenBankingApiHelper, OpenBankingApiConfig } from "../Shared/Banking";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a bank token request.');
@@ -12,14 +13,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         };
     }
 
-    context.log(req.body);
-
     var code = req.body.code;
-    var openBankingApi = req.body.openBankingApi;
-    if (!code || !openBankingApi){
+    var openBankingApiConfigReq = req.body.openBankingApiConfig;
+    if (!code || !openBankingApiConfigReq){
         var reason = "Missing parameters: ";
         if (!code) { reason += " code ";}
-        if (!openBankingApi) { reason += " openBankingApi ";}
+        if (!openBankingApiConfigReq) { reason += " openBankingApiConfig ";}
         context.log(reason);
         context.res = {
             status: 400,
@@ -28,65 +27,19 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         return;
     }
 
-    if (openBankingApi != "Tink" && openBankingApi != "TrueLayer"){
-        var reason = "openBankingApi: expected 'Tink' / 'TrueLayer' got '" + openBankingApi + "'";
-        context.log(reason);
-        context.res = {
-            status: 400,
-            body: { reason: reason }
-        };
-        return;
-    }
+    var openBankingApiConfig: OpenBankingApiConfig = Object.assign(openBankingApiConfigReq);
 
-    context.log('Getting token from code: ' + code);
-
-    var apiEndpoint: string;
-    var clientId: string;
-    var clientSecret: string;
-    var redirectUri: string;
-    if (openBankingApi == "Tink"){
-        apiEndpoint = "https://api.tink.com/api/v1/oauth/token";
-        clientId = "sandbox-knightlife-c74f1f";
-        clientSecret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
-        redirectUri = "https://console.truelayer-sandbox.com/redirect-page";
-    } else if (openBankingApi == "TrueLayer"){
-        apiEndpoint = "https://auth.truelayer-sandbox.com/connect/token";
-        clientId = "sandbox-knightlife-c74f1f";
-        clientSecret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
-        redirectUri = "https://4280-benknight135-knightlife-ef6oiv6dvsu.ws-eu88.gitpod.io/bankConnectCallback";
-    } else {
-        var reason = "openBankingApi: expected 'Tink' / 'TrueLayer' got '" + openBankingApi + "'";
-        context.log(reason);
-        context.res = {
-            status: 400,
-            body: { reason: reason }
-        };
-        return;
-    }
-
-    context.log(apiEndpoint);
-    context.log(clientId);
-    context.log(clientSecret);
-    context.log(redirectUri);
-
-    const requestBody = {
-        grant_type: "authorization_code",
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
-        code: code
-    }
-    const requestData = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-    };
+    var tokenUrl = OpenBankingApiHelper.getTokenUrl(openBankingApiConfig);
+    var requestData = OpenBankingApiHelper.generateTokenRequestData(
+        openBankingApiConfig,
+        "https://4280-benknight135-knightlife-ef6oiv6dvsu.ws-eu88.gitpod.io/bankConnectCallback",
+        code
+    )
 
     try {
-        const response = await fetch(apiEndpoint, requestData);
+        const response = await fetch(tokenUrl, requestData);
         try {
             const json = await response.json();
-            context.log(response.status);
             if (response.status != 200){
                 var reason: string = "Invalid response: " + JSON.stringify(json);
                 context.log(reason);
@@ -96,9 +49,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                 };
                 return;
             }
-            context.log("Valid response: " + JSON.stringify(json));
             var access_token = json.access_token;
-            context.log("Returning access_token: " + access_token);
             context.res = {
                 status: 200,
                 body: {

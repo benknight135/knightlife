@@ -1,27 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Text, ActivityIndicator } from 'react-native';
-import BankConnectButton, { OpenBankingApi } from './BankConnectButton';
+import { ActivityIndicator } from 'react-native';
+import { OpenBankingApiConfig } from './Banking';
+import { AccountsResults, AccountsJSONResponse } from './Banking';
 
 type BankAccoutLinkProps = {
-    openBankingApi: OpenBankingApi;
+    openBankingApiConfig: OpenBankingApiConfig;
     authToken: string | null;
 };
 
-const useAccountList = (apiEndpoint: string, authToken: string, openBankingApi: OpenBankingApi) => {
-    const [isLoadingAccountList, setLoadingAccoutList] = useState<boolean>(true);
-    const [accountList, setAccountList] = useState<string | null>(null);
+const useAccountsResults = (apiEndpoint: string, authToken: string, openBankingApiConfig: OpenBankingApiConfig) => {
+    const [isLoadingAccountsResults, setLoadingAccountsResults] = useState<boolean>(true);
+    const [accountsResults, setAccountsResults] = useState<AccountsResults | null>(null);
 
     useEffect(() => {
         const getAuthTokenAsync = async () => {
             if (apiEndpoint == null){
-                setAccountList(null);
-                setLoadingAccoutList(false);
+                setAccountsResults(null);
+                setLoadingAccountsResults(false);
                 return;
             }
             try {
                 const requestBody = {
                     token: authToken,
-                    openBankingApi: OpenBankingApi[openBankingApi]
+                    openBankingApiConfig: openBankingApiConfig
                 }
                 const requestData = {
                     method: 'POST',
@@ -30,32 +31,51 @@ const useAccountList = (apiEndpoint: string, authToken: string, openBankingApi: 
                 };
                 const response = await fetch(apiEndpoint, requestData);
                 try {
-                    const json = await response.json();
-                    setAccountList(json.results);
+                    const {results, errors}: AccountsJSONResponse = await response.json()
+                    if (response.ok) {
+                        if (results) {
+                            var accountListResult = Object.assign(results)
+                            setAccountsResults(accountListResult);
+                        } else {
+                            console.error(results);
+                            console.error("Did not find 'results' in response data");
+                        }
+                    } else {
+                        // handle the graphql errors
+                        const error = new Error(errors?.map(e => e.message).join('\n') ?? 'unknown')
+                        console.error(error);
+                    }
                 } catch (error) {
                     console.error(error);
                 }
             } catch (error) {
                 console.error(error);
-            } finally {
-                setLoadingAccoutList(false);
             }
+            setLoadingAccountsResults(false);
         };
 
         getAuthTokenAsync();
     }, []);
 
-    return { accountList, isLoadingAccountList };
+    return { accountsResults, isLoadingAccountsResults };
 };
 
-const BankAccountList = ({openBankingApi, authToken}: BankAccoutLinkProps) => {
+const BankAccountList = ({openBankingApiConfig, authToken}: BankAccoutLinkProps) => {
     if (authToken != null){
         var apiEndpoint: string = "/api/BankAccounts";
-        const { accountList, isLoadingAccountList } = useAccountList(apiEndpoint, authToken, openBankingApi);
-        if (isLoadingAccountList){
+        const { accountsResults, isLoadingAccountsResults } = useAccountsResults(apiEndpoint, authToken, openBankingApiConfig);
+        if (isLoadingAccountsResults){
             return <ActivityIndicator />
         } else {
-            return <Text>{accountList}</Text>
+            if (accountsResults == null){
+                return <ActivityIndicator />
+            }
+            const accountItems = accountsResults.map((account) =>
+                <li>{account.display_name}</li>
+            );
+            return (
+                <ul>{accountItems}</ul>
+            );
         }
     }
     
@@ -63,4 +83,3 @@ const BankAccountList = ({openBankingApi, authToken}: BankAccoutLinkProps) => {
 };
 
 export default BankAccountList;
-export { OpenBankingApi };
