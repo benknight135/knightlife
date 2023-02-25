@@ -66,7 +66,7 @@ export default function App() {
   const apiBaseURl: string = "/api";
   const apiVersionEndpoint: string = apiBaseURl + "/Version";
   const openBankingApiConfig: OpenBankingApiConfig = {
-    provider: OpenBankingApiProivder.TrueLayer,
+    provider: OpenBankingApiProivder.Tink,
     useSandbox: true
   };
 

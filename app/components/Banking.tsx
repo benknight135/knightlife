@@ -18,7 +18,7 @@ type TokenRequestBody = {
   grant_type: string,
   client_id: string,
   client_secret: string,
-  redirect_uri: string,
+  redirect_uri?: string,
   code: string
 }
 
@@ -32,8 +32,16 @@ type BankTokenJSONResponse = {
   access_token?: string,
   expires_in?: string,
   token_type?: string,
-  refresh_token?: string
-  errors?: Array<{message: string}>
+  refresh_token?: string,
+  scope?: string,
+  errorMessage?: string,
+  errorCode?: string,
+  error?: string,
+  error_description?: string,
+  error_details?: {
+    reason: string,
+    details: string
+  }
 }
 
 type AccountsRequestData = {
@@ -72,23 +80,45 @@ type AccountsJSONResponse = {
 
 class OpenBankingApiHelper {
 
-  public static getAuthApi(apiConfig: OpenBankingApiConfig): string {
+  public static getCodeApi(apiConfig: OpenBankingApiConfig): string {
     var api: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        api = "https://link.tink.com";
+        api = 'https://link.tink.com';
         if (apiConfig.useSandbox) {
-          api = "https://link.tink.com";
+          api = 'https://link.tink.com';
         }
         break;
       case OpenBankingApiProivder.TrueLayer:
-        api = "https://auth.truelayer.com";
+        api = 'https://auth.truelayer.com';
         if (apiConfig.useSandbox) {
-          api = "https://auth.truelayer-sandbox.com";
+          api = 'https://auth.truelayer-sandbox.com';
         }
         break;
       default:
-        var error = "Open Banking API " + OpenBankingApiProivder[apiConfig.provider] + " not implimented";
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
+        throw error;
+    }
+    return api;
+  }
+
+  public static getTokenApi(apiConfig: OpenBankingApiConfig): string {
+    var api: string;
+    switch (apiConfig.provider) {
+      case OpenBankingApiProivder.Tink:
+        api = 'https://api.tink.com';
+        if (apiConfig.useSandbox) {
+          api = 'https://api.tink.com';
+        }
+        break;
+      case OpenBankingApiProivder.TrueLayer:
+        api = 'https://auth.truelayer.com';
+        if (apiConfig.useSandbox) {
+          api = 'https://auth.truelayer-sandbox.com';
+        }
+        break;
+      default:
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
         throw error;
     }
     return api;
@@ -98,19 +128,19 @@ class OpenBankingApiHelper {
     var api: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        api = "https://api.tink.com";
+        api = 'https://api.tink.com';
         if (apiConfig.useSandbox) {
-          api = "https://api.tink.com";
+          api = 'https://api.tink.com';
         }
         break;
       case OpenBankingApiProivder.TrueLayer:
-        api = "https://api.truelayer.com";
+        api = 'https://api.truelayer.com';
         if (apiConfig.useSandbox) {
-          api = "https://api.truelayer-sandbox.com";
+          api = 'https://api.truelayer-sandbox.com';
         }
         break;
       default:
-        var error = "Open Banking API " + OpenBankingApiProivder[apiConfig.provider] + " not implimented";
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
         throw error;
     }
     return api;
@@ -120,13 +150,13 @@ class OpenBankingApiHelper {
     var apiOptions: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        apiOptions = "&market=GB&locale=en_US";
+        apiOptions = '&market=GB&locale=en_US';
         break;
       case OpenBankingApiProivder.TrueLayer:
-        apiOptions = "&response_type=code&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&providers=uk-cs-mock%20uk-ob-all%20uk-oauth-all";
+        apiOptions = '&response_type=code&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&providers=uk-cs-mock%20uk-ob-all%20uk-oauth-all';
         break;
       default:
-        var error = "Open Banking API " + OpenBankingApiProivder[apiConfig.provider] + " not implimented";
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
         throw error;
     }
     return apiOptions;
@@ -143,7 +173,7 @@ class OpenBankingApiHelper {
         formattedRedirectUri = redirectUri;
         break;
       default:
-        var error = "Open Banking API " + OpenBankingApiProivder[apiConfig.provider] + " not implimented";
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
         throw error;
     }
     return formattedRedirectUri;
@@ -153,19 +183,19 @@ class OpenBankingApiHelper {
     var clientId: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        clientId = "9dc635fa50fc4efb85ff831759df293e";
+        clientId = '9dc635fa50fc4efb85ff831759df293e';
         if (apiConfig.useSandbox) {
-          clientId = "e510fbadcd714f7ca5ef141d4923f6c1";
+          clientId = 'e510fbadcd714f7ca5ef141d4923f6c1';
         }
         break;
       case OpenBankingApiProivder.TrueLayer:
-        clientId = "knightlife-c74f1f";
+        clientId = 'knightlife-c74f1f';
         if (apiConfig.useSandbox) {
-          clientId = "sandbox-knightlife-c74f1f";
+          clientId = 'sandbox-knightlife-c74f1f';
         }
         break;
       default:
-        var error = "Open Banking API " + OpenBankingApiProivder[apiConfig.provider] + " not implimented";
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
         throw error;
     }
     return clientId;
@@ -175,19 +205,19 @@ class OpenBankingApiHelper {
     var clientSecret: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        clientSecret = "22c13d3a5f98434bb3becc202642144d";
+        clientSecret = '22c13d3a5f98434bb3becc202642144d';
         if (apiConfig.useSandbox) {
-          clientSecret = "8b4c5a0be2f1486aa2d669207504d124";
+          clientSecret = '7a41cdd60b0a48c0831a3ccb02c8c112';
         }
         break;
       case OpenBankingApiProivder.TrueLayer:
-        clientSecret = "4b8a24f2-1e9d-4d1f-80fb-da4dc0697923";
+        clientSecret = '4b8a24f2-1e9d-4d1f-80fb-da4dc0697923';
         if (apiConfig.useSandbox) {
-          clientSecret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
+          clientSecret = '42485d39-d77e-4d7e-a24e-fded84cdd7f7';
         }
         break;
       default:
-        var error = "Open Banking API " + OpenBankingApiProivder[apiConfig.provider] + " not implimented";
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
         throw error;
     }
     return clientSecret;
@@ -197,13 +227,13 @@ class OpenBankingApiHelper {
     var endpoint: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        endpoint = "/1.0/transactions/connect-accounts/";
+        endpoint = '/1.0/transactions/connect-accounts/';
         break;
       case OpenBankingApiProivder.TrueLayer:
-        endpoint = "/";
+        endpoint = '/';
         break;
       default:
-        var error = "Open Banking API " + OpenBankingApiProivder[apiConfig.provider] + " not implimented";
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
         throw error;
     }
     return endpoint;
@@ -213,13 +243,13 @@ class OpenBankingApiHelper {
     var endpoint: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        endpoint = "/api/v1/oauth/token";
+        endpoint = '/api/v1/oauth/token';
         break;
       case OpenBankingApiProivder.TrueLayer:
-        endpoint = "/connect/token";
+        endpoint = '/connect/token';
         break;
       default:
-        var error = "Open Banking API " + OpenBankingApiProivder[apiConfig.provider] + " not implimented";
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
         throw error;
     }
     return endpoint;
@@ -229,51 +259,63 @@ class OpenBankingApiHelper {
     var endpoint: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        endpoint = "/data/v2/accounts";
+        endpoint = '/data/v2/accounts';
         break;
       case OpenBankingApiProivder.TrueLayer:
-        endpoint = "/data/v1/accounts";
+        endpoint = '/data/v1/accounts';
         break;
       default:
-        var error = "Open Banking API " + OpenBankingApiProivder[apiConfig.provider] + " not implimented";
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
         throw error;
     }
     return endpoint;
   }
   
-  public static generateConnectUrl(apiConfig: OpenBankingApiConfig, redirectUri: string): string {
-    var api: string = this.getAuthApi(apiConfig);
+  public static generateCodeUrl(apiConfig: OpenBankingApiConfig, redirectUri: string): string {
+    var api: string = this.getCodeApi(apiConfig);
     var endpoint: string = this.getConnectEndpoint(apiConfig);
     var clientId: string = this.getClientId(apiConfig);
     var apiOptions: string = this.getApiConnectOptions(apiConfig);
     var redirectUri: string = this.formatRedirectUri(apiConfig, redirectUri);
-    var url: string = api + endpoint + "?client_id=" + clientId + "&redirect_uri=" + redirectUri + apiOptions;
+    var url: string = api + endpoint + '?client_id=' + clientId + '&redirect_uri=' + redirectUri + apiOptions;
     return url;
   }
   
   public static getTokenUrl(apiConfig: OpenBankingApiConfig): string {
-    var api: string = this.getAuthApi(apiConfig);
+    var api: string = this.getTokenApi(apiConfig);
     var endpoint: string = this.getTokenEndpoint(apiConfig);
     var url: string = api + endpoint;
     return url;
   }
 
-  public static generateTokenRequestData(apiConfig: OpenBankingApiConfig, redirectUri: string, code: string): TokenRequestData {
+  public static generateTokenRequestData(apiConfig: OpenBankingApiConfig, redirectUri: string, code: string): any {
     var requestBody: TokenRequestBody = {
-      grant_type: "authorization_code",
+      grant_type: 'authorization_code',
       client_id: this.getClientId(apiConfig),
       client_secret: this.getClientSecret(apiConfig),
       redirect_uri: redirectUri,
       code: code
     }
 
-    var headers = new Headers();
-    headers.append('Content-Type', 'application/json');
+    if (apiConfig.provider == OpenBankingApiProivder.Tink){
+      requestBody.redirect_uri = undefined;
+    }
+
+    const body = new URLSearchParams(
+      requestBody
+    );
+    // body.append('grant_type', 'authorization_code');
+    // body.append('client_id', this.getClientId(apiConfig));
+    // body.append('client_secret', this.getClientSecret(apiConfig));
+    // body.append('code', 'password');
+    // if (apiConfig.provider != OpenBankingApiProivder.Tink){
+    //   body.append('redirect_uri', redirectUri);
+    // }
 
     var requestData = {
       method: 'POST',
-      headers: headers,
-      body: JSON.stringify(requestBody)
+      headers: {'Content-Type': "application/x-www-form-urlencoded"},
+      body: body
     };
 
     return requestData;

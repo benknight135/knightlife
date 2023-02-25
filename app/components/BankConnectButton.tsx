@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import LinkButton from './LinkButton'
 import { OpenBankingApiConfig, OpenBankingApiHelper } from './Banking';
 
@@ -11,10 +11,11 @@ type BankConnectButtonProps = {
 
 const BankConnectButton = ({title, openBankingApiConfig, redirectUri}: BankConnectButtonProps) => {
   try{
-    var url: string = OpenBankingApiHelper.generateConnectUrl(openBankingApiConfig, redirectUri);
+    var url: string = OpenBankingApiHelper.generateCodeUrl(openBankingApiConfig, redirectUri);
     console.log(url);
   } catch {
-    return <Text>Failed to generate bank connect url</Text>
+    console.error("Failed to generate bank code url")
+    return <ActivityIndicator/>
   }
   return <LinkButton title={title} url={url} />;
 };
