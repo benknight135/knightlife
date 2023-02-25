@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Linking, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { OpenBankingApiConfig, OpenBankingApiProivder } from './components/Banking';
 import BankView from './components/BankView';
 
 type APIVersion = {
@@ -66,6 +67,10 @@ const useAPIVerrsion = (apiVersionEndpoint: string) => {
 export default function App() {
   const apiBaseURl: string = "/api";
   const apiVersionEndpoint: string = apiBaseURl + "/Version";
+  const openBankingApiConfig: OpenBankingApiConfig = {
+    provider: OpenBankingApiProivder.TrueLayer,
+    useSandbox: true
+  };
 
   const { url: appStartURL, processing: isLoadingAppStartURL } = useAppStartURL();
   const { apiVersion, isLoadingAPIVersion } = useAPIVerrsion(apiVersionEndpoint);
@@ -84,6 +89,7 @@ export default function App() {
       ) : (
         <BankView
           appStartURL={appStartURL}
+          openBankingApiConfig={openBankingApiConfig}
         />
       )}
 
