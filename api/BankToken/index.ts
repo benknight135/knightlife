@@ -41,19 +41,19 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     context.log('Getting token from code: ' + code);
 
     var apiEndpoint: string;
-    var client_id: string;
-    var client_secret: string;
-    var redirect_uri: string;
+    var clientId: string;
+    var clientSecret: string;
+    var redirectUri: string;
     if (openBankingApi == "Tink"){
         apiEndpoint = "https://api.tink.com/api/v1/oauth/token";
-        client_id = "sandbox-knightlife-c74f1f";
-        client_secret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
-        redirect_uri = "https://console.truelayer-sandbox.com/redirect-page";
+        clientId = "sandbox-knightlife-c74f1f";
+        clientSecret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
+        redirectUri = "https://console.truelayer-sandbox.com/redirect-page";
     } else if (openBankingApi == "TrueLayer"){
         apiEndpoint = "https://auth.truelayer-sandbox.com/connect/token";
-        client_id = "sandbox-knightlife-c74f1f";
-        client_secret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
-        redirect_uri = "https://console.truelayer-sandbox.com/redirect-page";
+        clientId = "sandbox-knightlife-c74f1f";
+        clientSecret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
+        redirectUri = "https://4280-benknight135-knightlife-ef6oiv6dvsu.ws-eu88.gitpod.io/bankConnectCallback";
     } else {
         var reason = "openBankingApi: expected 'Tink' / 'TrueLayer' got '" + openBankingApi + "'";
         context.log(reason);
@@ -64,12 +64,16 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         return;
     }
 
+    context.log(apiEndpoint);
+    context.log(clientId);
+    context.log(clientSecret);
+    context.log(redirectUri);
 
     const requestBody = {
         grant_type: "authorization_code",
-        client_id: "sandbox-knightlife-c74f1f",
-        client_secret: "42485d39-d77e-4d7e-a24e-fded84cdd7f7", // TODO replace with secret env variable or something
-        redirect_uri: "https://console.truelayer-sandbox.com/redirect-page", // https://console.tink.com/callback
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
         code: code
     }
     const requestData = {

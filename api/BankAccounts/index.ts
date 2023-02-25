@@ -38,13 +38,13 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         return;
     }
 
-    context.log('Getting accouts using token: ' + token);
+    context.log('Getting accounts using token: ' + token);
 
     var apiEndpoint: string;
     if (openBankingApi == "Tink"){
         apiEndpoint = "https://api.tink.com/data/v2/accounts";
     } else if (openBankingApi == "TrueLayer"){
-        apiEndpoint = "https://api.truelayer.com/data/v1/accounts";
+        apiEndpoint = "https://api.truelayer-sandbox.com/data/v1/accounts";
     } else {
         var reason = "openBankingApi: expected 'Tink' / 'TrueLayer' got '" + openBankingApi + "'";
         context.log(reason);
@@ -54,15 +54,9 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         };
         return;
     }
-    
-    let headers = new Headers();
-    headers.append("Authorization", "Bearer " + token);
-    
-    const requestBody = {}
+
     const requestData = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
+        headers: {"Authorization": "Bearer " + token}
     };
 
     try {
@@ -82,6 +76,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         } catch (error) {
             var reason: string = error;
             context.log(reason);
+            context.log(response.text());
             context.res = {
                 status: 400,
                 body: { reason: reason }

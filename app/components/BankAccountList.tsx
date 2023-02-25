@@ -19,11 +19,9 @@ const useAccountList = (apiEndpoint: string, authToken: string, openBankingApi: 
                 return;
             }
             try {
-                // let headers = new Headers();
-                // headers.append("Authorization", "Bearer " + authToken);
                 const requestBody = {
                     token: authToken,
-                    openBankingApi: openBankingApi
+                    openBankingApi: OpenBankingApi[openBankingApi]
                 }
                 const requestData = {
                     method: 'POST',
@@ -53,18 +51,6 @@ const useAccountList = (apiEndpoint: string, authToken: string, openBankingApi: 
 const BankAccountList = ({openBankingApi, authToken}: BankAccoutLinkProps) => {
     if (authToken != null){
         var apiEndpoint: string = "/api/BankAccounts";
-        // switch(openBankingApi){
-        //     case OpenBankingApi.TrueLayer:
-        //         apiEndpoint = new URL("https://api.truelayer.com/data/v1/accounts");
-        //         break;
-        //     case OpenBankingApi.Tink:
-        //         apiEndpoint = new URL("https://api.tink.com/data/v2/accounts");
-        //         break;
-        //     default:
-        //         var error = "Open Bankking API " + openBankingApi + " not implimented";
-        //         console.error(error);
-        //         break;
-        // }
         const { accountList, isLoadingAccountList } = useAccountList(apiEndpoint, authToken, openBankingApi);
         if (isLoadingAccountList){
             return <ActivityIndicator />
