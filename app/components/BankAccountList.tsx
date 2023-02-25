@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { OpenBankingApiConfig } from './Banking';
-import { AccountsResults, AccountsJSONResponse } from './Banking';
+import { AccountsResponse, Accounts } from './Banking';
 
 type BankAccoutLinkProps = {
     openBankingApiConfig: OpenBankingApiConfig;
     authToken: string | null;
 };
 
-const useAccountsResults = (apiEndpoint: string, authToken: string, openBankingApiConfig: OpenBankingApiConfig) => {
-    const [isLoadingAccountsResults, setLoadingAccountsResults] = useState<boolean>(true);
-    const [accountsResults, setAccountsResults] = useState<AccountsResults | null>(null);
+const useAccounts = (apiEndpoint: string, authToken: string, openBankingApiConfig: OpenBankingApiConfig) => {
+    const [isLoadingAccounts, setLoadingAccounts] = useState<boolean>(true);
+    const [accounts, setAccounts] = useState<Accounts | null>(null);
 
     useEffect(() => {
         const getAuthTokenAsync = async () => {
             if (apiEndpoint == null){
-                setAccountsResults(null);
-                setLoadingAccountsResults(false);
+                setAccounts(null);
+                setLoadingAccounts(false);
                 return;
             }
             try {
@@ -31,18 +31,15 @@ const useAccountsResults = (apiEndpoint: string, authToken: string, openBankingA
                 };
                 const response = await fetch(apiEndpoint, requestData);
                 try {
-                    const {results, errors}: AccountsJSONResponse = await response.json()
+                    const {accounts: accountsJson, error}: AccountsResponse = await response.json()
                     if (response.ok) {
-                        if (results) {
-                            var accountListResult: AccountsResults = Object.assign(results)
-                            setAccountsResults(accountListResult);
+                        if (accountsJson) {
+                            var accounts: Accounts = Object.assign(accountsJson)
+                            setAccounts(accounts);
                         } else {
-                            console.error(results);
-                            console.error("Did not find 'results' in response data");
+                            console.error("Did not find 'accounts' in response data");
                         }
                     } else {
-                        // handle the graphql errors
-                        const error = new Error(errors?.map(e => e.message).join('\n') ?? 'unknown')
                         console.error(error);
                     }
                 } catch (error) {
@@ -51,27 +48,27 @@ const useAccountsResults = (apiEndpoint: string, authToken: string, openBankingA
             } catch (error) {
                 console.error(error);
             }
-            setLoadingAccountsResults(false);
+            setLoadingAccounts(false);
         };
 
         getAuthTokenAsync();
     }, []);
 
-    return { accountsResults, isLoadingAccountsResults };
+    return { accounts, isLoadingAccounts };
 };
 
 const BankAccountList = ({openBankingApiConfig, authToken}: BankAccoutLinkProps) => {
     if (authToken != null){
         var apiEndpoint: string = "/api/BankAccounts";
-        const { accountsResults, isLoadingAccountsResults } = useAccountsResults(apiEndpoint, authToken, openBankingApiConfig);
-        if (isLoadingAccountsResults){
+        const { accounts, isLoadingAccounts } = useAccounts(apiEndpoint, authToken, openBankingApiConfig);
+        if (isLoadingAccounts){
             return <ActivityIndicator />
         } else {
-            if (accountsResults == null){
+            if (accounts == null){
                 return <ActivityIndicator />
             }
-            const accountItems = accountsResults.map((account) =>
-                <li>{account.display_name}</li>
+            const accountItems = accounts.map((account) =>
+                <li>{account.name}</li>
             );
             return (
                 <ul>{accountItems}</ul>

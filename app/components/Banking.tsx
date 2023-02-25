@@ -8,24 +8,12 @@ type OpenBankingApiConfig = {
   useSandbox: boolean
 }
 
-type BankTokenJSONRequest = {
-  openBankingApiConfig?: OpenBankingApiConfig,
-  code?: string,
-  errors?: Array<{message: string}>
-}
-
 type TokenRequestBody = {
   grant_type: string,
   client_id: string,
   client_secret: string,
   redirect_uri?: string,
   code: string
-}
-
-type TokenRequestData = {
-  method: string,
-  headers: Headers,
-  body: string
 }
 
 type BankTokenJSONResponse = {
@@ -44,38 +32,105 @@ type BankTokenJSONResponse = {
   }
 }
 
-type AccountsRequestData = {
-  headers: Headers
-}
-
-type AccountNumber = {
+type TrueLayerAccountNumber = {
   iban: string;
   swift_bic: string;
   number: string;
   sort_code: string;
 }
 
-type AccountProvider = {
+type TrueLayerAccountProvider = {
   display_name: string;
   provider_id: string;
   logo_uri: string;
 }
 
-type Account = {
+type TrueLayerAccount = {
   update_timestamp: string;
   account_id: string;
   account_type: string;
   display_name: string;
   currency: string;
-  account_number: AccountNumber
-  provider: AccountProvider;
+  account_number: TrueLayerAccountNumber
+  provider: TrueLayerAccountProvider;
 };
 
-type AccountsResults = Array<Account>
+type TrueLayerAccountsResults = Array<TrueLayerAccount>
 
-type AccountsJSONResponse = {
-  results?: AccountsResults,
-  errors?: Array<{message: string}>
+type TrueLayerAccountsJSONResponse = {
+  results?: TrueLayerAccountsResults,
+  errorMessage?: string,
+  errorCode?: string,
+}
+
+type TinkAccountBalance = {
+  amount: {
+    value: {
+      unscaledValue: string,
+      scale: string
+    }
+    currencyCode: string
+  }
+}
+
+type TinkAccount = {
+  id: string;
+  name: string;
+  type: string;
+  balances: {
+    booked: TinkAccountBalance
+    available: TinkAccountBalance
+  },
+  identifiers: {
+    iban: {
+      iban: string,
+      bban: string
+    },
+    sortCode: {
+      code: string,
+      accountNumber: string
+    },
+    financialInstitution: {
+      accountNumber: string,
+      referenceNumbers: {}
+    }
+  },
+  dates: {
+    lastRefreshed: string
+  },
+  financialInstitutionId: string,
+  customerSegment: string,
+};
+
+type TinkAccounts = Array<TinkAccount>
+
+type TinkAccountsJSONResponse = {
+  accounts?: TinkAccounts,
+  error?: string,
+  error_description?: string,
+  error_details?: {
+    reason: string,
+    details: string
+  }
+}
+
+type SortCode = {
+  code: string,
+  number: string
+}
+
+type Account = {
+  id: string,
+  name: string,
+  type: string,
+  sort_code: SortCode
+}
+
+type Accounts = Array<Account>
+
+type AccountsResponse = {
+  accounts?: Accounts,
+  error?: string
 }
 
 class OpenBankingApiHelper {
@@ -304,13 +359,6 @@ class OpenBankingApiHelper {
     const body = new URLSearchParams(
       requestBody
     );
-    // body.append('grant_type', 'authorization_code');
-    // body.append('client_id', this.getClientId(apiConfig));
-    // body.append('client_secret', this.getClientSecret(apiConfig));
-    // body.append('code', 'password');
-    // if (apiConfig.provider != OpenBankingApiProivder.Tink){
-    //   body.append('redirect_uri', redirectUri);
-    // }
 
     var requestData = {
       method: 'POST',
@@ -328,7 +376,7 @@ class OpenBankingApiHelper {
     return url;
   }
 
-  public static generateAccountsRequestData(token: string): AccountsRequestData {
+  public static generateAccountsRequestData(token: string) {
     var headers = new Headers();
     headers.append('Authorization', 'Bearer ' + token);
 
@@ -339,9 +387,73 @@ class OpenBankingApiHelper {
     return requestData;
   }
 
+  public static processAccountsResponse(apiConfig: OpenBankingApiConfig, json: any): AccountsResponse {
+    var accountsResponse: AccountsResponse = {
+      accounts: undefined,
+      error: undefined
+    }
+    switch(apiConfig.provider){
+      case OpenBankingApiProivder.Tink:
+        const { accounts, error_details }: TinkAccountsJSONResponse = Object.assign(json);
+        if (accounts){
+          accountsResponse.accounts = new Array;
+          accounts.forEach(tinkAccount => {
+            var account: Account = {
+              id: tinkAccount.id,
+              name: tinkAccount.name,
+              type: tinkAccount.type,
+              sort_code: {
+                number: tinkAccount.identifiers.sortCode.accountNumber,
+                code: tinkAccount.identifiers.sortCode.code
+              }
+            }
+            if (!accountsResponse.accounts){
+              throw "Accounts array has not been initalised";
+            }
+            accountsResponse.accounts.push(
+              account
+            )
+          });
+        }
+        if (error_details){
+          accountsResponse.error = JSON.stringify(error_details);
+        }
+        break;
+      case OpenBankingApiProivder.TrueLayer:
+        const { results, errorMessage }: TrueLayerAccountsJSONResponse = Object.assign(json);
+        if (results){
+          accountsResponse.accounts = new Array;
+          results.forEach(result => {
+            var account: Account = {
+              id: result.account_id,
+              name: result.display_name,
+              type: result.account_type,
+              sort_code: {
+                number: result.account_number.number,
+                code: result.account_number.sort_code
+              }
+            }
+            if (!accountsResponse.accounts){
+              throw "Accounts array has not been initalised";
+            }
+            accountsResponse.accounts.push(
+              account
+            )
+          });
+        }
+        if (errorMessage){
+          accountsResponse.error = errorMessage;
+        }
+        break;
+      default:
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
+        throw error;
+    }
+    return accountsResponse;
+  }
+
 }
 
 export { OpenBankingApiProivder, OpenBankingApiConfig, OpenBankingApiHelper };
-export { BankTokenJSONRequest }
-export { AccountsResults, AccountsJSONResponse }
-export { BankTokenJSONResponse }
+export { Accounts, AccountsResponse };
+export { BankTokenJSONResponse };

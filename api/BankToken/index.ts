@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
-import { OpenBankingApiProivder, OpenBankingApiHelper, OpenBankingApiConfig } from "../Shared/Banking";
+import { OpenBankingApiHelper, OpenBankingApiConfig } from "../Shared/Banking";
 import { BankTokenJSONResponse } from "../Shared/Banking";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {

@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
-import { OpenBankingApiConfig, OpenBankingApiHelper } from "../Shared/Banking";
+import { AccountsResponse, OpenBankingApiConfig, OpenBankingApiHelper } from "../Shared/Banking";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a bank accounts request.');
@@ -35,19 +35,63 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     try {
         const response = await fetch(accountsUrl, requestData);
         try {
-            const json = await response.json();
-            var results = json.results;
-            context.res = {
-                status: 200,
-                body: {
-                    results: results
+            const resText = await response.text();
+            try {
+                const resJson = JSON.parse(resText);
+                try {
+                    const { accounts, error }: AccountsResponse = OpenBankingApiHelper.processAccountsResponse(
+                        openBankingApiConfig, resJson);
+                    if (response.ok) {
+                        if (accounts) {
+                            context.res = {
+                                status: 200,
+                                body: {
+                                    accounts: accounts
+                                }
+                            };
+                            return;
+                        } else {
+                            var reason = "Did not find 'accounts' in response data";
+                            context.log(reason);
+                            context.res = {
+                                status: 400,
+                                body: { reason: reason }
+                            };
+                            return;
+                        }
+                    } else {
+                        var reason: string = "Response not ok: " + error;
+                        context.log(reason);
+                        context.log(resJson);
+                        context.res = {
+                            status: 400,
+                            body: { reason: reason }
+                        };
+                        return;
+                    }
+                } catch (error) {
+                    var reason: string = "Failed to process json response: " + (error);
+                    context.log(reason);
+                    context.log(resJson);
+                    context.res = {
+                        status: 400,
+                        body: { reason: reason }
+                    };
+                    return;
                 }
-            };
-            return;
+            } catch (error) {
+                var reason: string = "Failed to parse json response: " + (error);
+                context.log(reason);
+                context.log(resText);
+                context.res = {
+                    status: 400,
+                    body: { reason: reason }
+                };
+                return;
+            }
         } catch (error) {
-            var reason: string = error;
+            var reason: string = "Failed to read response text: " + (error);
             context.log(reason);
-            context.log(response.text());
             context.res = {
                 status: 400,
                 body: { reason: reason }
@@ -55,7 +99,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             return;
         }
     } catch (error) {
-        var reason: string = error;
+        var reason: string = "Failed to fetch response: " + (error);
         context.log(reason);
         context.res = {
             status: 400,
