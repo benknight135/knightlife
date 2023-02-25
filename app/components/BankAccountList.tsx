@@ -34,7 +34,7 @@ const useAccountsResults = (apiEndpoint: string, authToken: string, openBankingA
                     const {results, errors}: AccountsJSONResponse = await response.json()
                     if (response.ok) {
                         if (results) {
-                            var accountListResult = Object.assign(results)
+                            var accountListResult: AccountsResults = Object.assign(results)
                             setAccountsResults(accountListResult);
                         } else {
                             console.error(results);

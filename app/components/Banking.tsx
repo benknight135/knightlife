@@ -28,6 +28,14 @@ type TokenRequestData = {
   body: string
 }
 
+type BankTokenJSONResponse = {
+  access_token?: string,
+  expires_in?: string,
+  token_type?: string,
+  refresh_token?: string
+  errors?: Array<{message: string}>
+}
+
 type AccountsRequestData = {
   headers: Headers
 }
@@ -125,20 +133,20 @@ class OpenBankingApiHelper {
   }
   
   public static formatRedirectUri(apiConfig: OpenBankingApiConfig, redirectUri: string): string {
-    var redirectUri: string;
-    var encodedUri = encodeURIComponent(redirectUri);
+    var formattedRedirectUri: string;
+    var encodedUri: string = encodeURIComponent(redirectUri);
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        redirectUri = encodedUri;
+        formattedRedirectUri = encodedUri;
         break;
       case OpenBankingApiProivder.TrueLayer:
-        redirectUri = redirectUri;
+        formattedRedirectUri = redirectUri;
         break;
       default:
         var error = "Open Banking API " + OpenBankingApiProivder[apiConfig.provider] + " not implimented";
         throw error;
     }
-    return redirectUri;
+    return formattedRedirectUri;
   }
   
   public static getClientId(apiConfig: OpenBankingApiConfig): string {
@@ -294,3 +302,4 @@ class OpenBankingApiHelper {
 export { OpenBankingApiProivder, OpenBankingApiConfig, OpenBankingApiHelper };
 export { BankTokenJSONRequest }
 export { AccountsResults, AccountsJSONResponse }
+export { BankTokenJSONResponse }

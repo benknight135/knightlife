@@ -10,17 +10,15 @@ type APIVersion = {
 };
 
 const useAppStartURL = () => {
-  const [url, setUrl] = useState<URL | null>(null);
+  const [startUrl, setStartUrl] = useState<URL | null>(null);
   const [processing, setProcessing] = useState(true);
 
   useEffect(() => {
     const getUrlAsync = async () => {
       // Get the deep link used to open the app
       const initialUrl: string | null = await Linking.getInitialURL();
-      if (initialUrl == null){
-        setUrl(null);
-      } else {
-        setUrl(new URL(initialUrl));
+      if (initialUrl != null){
+        setStartUrl(new URL(initialUrl));
       }
       setProcessing(false);
     };
@@ -28,7 +26,7 @@ const useAppStartURL = () => {
     getUrlAsync();
   }, []);
 
-  return { url, processing };
+  return { startUrl, processing };
 };
 
 
@@ -72,7 +70,7 @@ export default function App() {
     useSandbox: true
   };
 
-  const { url: appStartURL, processing: isLoadingAppStartURL } = useAppStartURL();
+  const { startUrl: appStartUrl, processing: isLoadingAppStartURL } = useAppStartURL();
   const { apiVersion, isLoadingAPIVersion } = useAPIVerrsion(apiVersionEndpoint);
 
   return (
@@ -88,7 +86,7 @@ export default function App() {
         <ActivityIndicator />
       ) : (
         <BankView
-          appStartURL={appStartURL}
+          appStartUrl={appStartUrl}
           openBankingApiConfig={openBankingApiConfig}
         />
       )}

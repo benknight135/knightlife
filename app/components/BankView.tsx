@@ -5,8 +5,15 @@ import BankAccountList from './BankAccountList';
 import { OpenBankingApiConfig } from './Banking';
 
 type BankViewProps = {
-    appStartURL: URL | null,
+    appStartUrl: URL | null,
     openBankingApiConfig: OpenBankingApiConfig;
+};
+
+type UseBankAuthTokenProps = {
+    apiEndpoint: string,
+    authCode: string,
+    openBankingApiConfig: OpenBankingApiConfig,
+    redirectUri: string
 };
 
 function authCodeFromURL(url: URL | null): string | null {
@@ -22,7 +29,8 @@ function authCodeFromURL(url: URL | null): string | null {
     return code;
 }
 
-const useBankAuthToken = (apiEndpoint: string, authCode: string, openBankingApiConfig: OpenBankingApiConfig) => {
+const useBankAuthToken = (
+        {apiEndpoint, authCode, openBankingApiConfig, redirectUri}: UseBankAuthTokenProps) => {
     const [isLoadingAuthToken, setLoadingAuthToken] = useState<boolean>(true);
     const [authToken, setAuthToken] = useState<string | null>(null);
 
@@ -37,6 +45,7 @@ const useBankAuthToken = (apiEndpoint: string, authCode: string, openBankingApiC
                 const requestBody = {
                     code: authCode,
                     openBankingApiConfig: openBankingApiConfig,
+                    redirectUri: redirectUri
                 }
                 const requestData = {
                     method: 'POST',
@@ -63,12 +72,17 @@ const useBankAuthToken = (apiEndpoint: string, authCode: string, openBankingApiC
     return { authToken, isLoadingAuthToken };
 };
 
-const BankView = ({appStartURL, openBankingApiConfig}: BankViewProps) => {
-    
-    var authCode: string | null = authCodeFromURL(appStartURL);
+const BankView = ({appStartUrl, openBankingApiConfig}: BankViewProps) => {
+    if (appStartUrl == null){
+        console.error("appStartUrl is null");
+        return <ActivityIndicator />
+    }
+    var authCode: string | null = authCodeFromURL(appStartUrl);
+    var redirectUri: string = new URL("/bankConnectCallback", appStartUrl.origin).toString();
     if (authCode != null){
         var apiEndpoint: string = "/api/BankToken";
-        const { authToken, isLoadingAuthToken } = useBankAuthToken(apiEndpoint, authCode, openBankingApiConfig);
+        const { authToken, isLoadingAuthToken } = useBankAuthToken(
+            {apiEndpoint, authCode, openBankingApiConfig, redirectUri});
         if (isLoadingAuthToken){
             return <ActivityIndicator />
         } else {
@@ -84,7 +98,7 @@ const BankView = ({appStartURL, openBankingApiConfig}: BankViewProps) => {
     return <BankConnectButton
         title='Connect Bank'
         openBankingApiConfig={openBankingApiConfig}
-        redirectUri={appStartURL + "bankConnectCallback"}
+        redirectUri={redirectUri}
     />
 };
 
