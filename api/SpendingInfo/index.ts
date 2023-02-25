@@ -2,7 +2,7 @@ import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 import { AccountsResponse, OpenBankingApiConfig, OpenBankingApiHelper } from "../Shared/Banking";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
-    context.log('HTTP trigger function processed a bank accounts request.');
+    context.log('HTTP trigger function processed a bank transactions request.');
 
     if (!req.body){
         var error = "Missing request body";

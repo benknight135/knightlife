@@ -1,3 +1,5 @@
+import { Float } from "react-native/Libraries/Types/CodegenTypes"
+
 enum OpenBankingApiProivder {
   TrueLayer = 1,
   Tink,
@@ -16,7 +18,7 @@ type TokenRequestBody = {
   code: string
 }
 
-type BankTokenJSONResponse = {
+type BankTokenResponse = {
   access_token?: string,
   expires_in?: string,
   token_type?: string,
@@ -57,7 +59,7 @@ type TrueLayerAccount = {
 
 type TrueLayerAccountsResults = Array<TrueLayerAccount>
 
-type TrueLayerAccountsJSONResponse = {
+type TrueLayerAccountsResponse = {
   results?: TrueLayerAccountsResults,
   errorMessage?: string,
   errorCode?: string,
@@ -104,7 +106,7 @@ type TinkAccount = {
 
 type TinkAccounts = Array<TinkAccount>
 
-type TinkAccountsJSONResponse = {
+type TinkAccountsResponse = {
   accounts?: TinkAccounts,
   error?: string,
   error_description?: string,
@@ -130,6 +132,100 @@ type Accounts = Array<Account>
 
 type AccountsResponse = {
   accounts?: Accounts,
+  error?: string
+}
+
+type TrueLayerTransaction = {
+  timestamp: string,
+  description: string,
+  transaction_type: string,
+  transaction_category: string,
+  transaction_classification: [],
+  amount: Float,
+  currency: string,
+  transaction_id: string,
+  provider_transaction_id: string,
+  normalised_provider_transaction_id: string,
+  running_balance: {
+    currency: string,
+    amount: Float
+  }
+  meta: {
+    provider_transaction_category: string
+  }
+}
+
+type TrueLayerTransactionsResults = Array<TrueLayerTransaction>
+
+type TrueLayerTransactionsResponse = {
+  results?: TrueLayerTransactionsResults,
+  status?: string
+  errorMessage?: string,
+  errorCode?: string,
+}
+
+type TinkTransaction = {
+  id: string,
+  accountId: string,
+  amount: {
+    value: {
+      unscaledValue: string,
+      scale: string
+    }
+    currencyCode: string
+  },
+  descriptions: {
+    original: string,
+    display: string
+  },
+  dates: {
+    booked: string
+  },
+  identifiers: {
+    providerTransactionId: string
+  },
+  types: {
+    type: string
+  },
+  status: string,
+  providerMutability: string
+}
+
+type TinkTransactions = Array<TinkTransaction>
+
+type TinkTransactionsResponse = {
+  transactions?: TinkTransactions,
+  nextPageToken?: string,
+  error?: string,
+  error_description?: string,
+  error_details?: {
+    reason: string,
+    details: string
+  }
+}
+
+type Transaction = {
+  timestamp: string,
+  description: string,
+  transaction_type: string,
+  amount: Float,
+  currency: string
+}
+
+type Transactions = Array<Transaction>
+
+type TransactionsResponse = {
+  transactions?: Transactions,
+  error?: string
+}
+
+type SpendingInfo = {
+  debit: string,
+  credit: string
+}
+
+type SpendingInfoResponse = {
+  spendingInfo?: SpendingInfo,
   error?: string
 }
 
@@ -325,8 +421,24 @@ class OpenBankingApiHelper {
     }
     return endpoint;
   }
+
+  public static getTransactionsEndpoint(apiConfig: OpenBankingApiConfig, accountId: string): string {
+    var endpoint: string;
+    switch (apiConfig.provider) {
+      case OpenBankingApiProivder.Tink:
+        endpoint = '/data/v2/transactions';
+        break;
+      case OpenBankingApiProivder.TrueLayer:
+        endpoint = '/data/v1/accounts/' + accountId + '/transactions';
+        break;
+      default:
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
+        throw error;
+    }
+    return endpoint;
+  }
   
-  public static generateCodeUrl(apiConfig: OpenBankingApiConfig, redirectUri: string): string {
+  public static getCodeUrl(apiConfig: OpenBankingApiConfig, redirectUri: string): string {
     var api: string = this.getCodeApi(apiConfig);
     var endpoint: string = this.getConnectEndpoint(apiConfig);
     var clientId: string = this.getClientId(apiConfig);
@@ -343,7 +455,7 @@ class OpenBankingApiHelper {
     return url;
   }
 
-  public static generateTokenRequestData(apiConfig: OpenBankingApiConfig, redirectUri: string, code: string): any {
+  public static getTokenRequestData(apiConfig: OpenBankingApiConfig, redirectUri: string, code: string): any {
     var requestBody: TokenRequestBody = {
       grant_type: 'authorization_code',
       client_id: this.getClientId(apiConfig),
@@ -369,14 +481,7 @@ class OpenBankingApiHelper {
     return requestData;
   }
 
-  public static getAccountsUrl(apiConfig: OpenBankingApiConfig): string {
-    var api: string = this.getApi(apiConfig);
-    var endpoint: string = this.getAccountsEndpoint(apiConfig);
-    var url: string = api + endpoint;
-    return url;
-  }
-
-  public static generateAccountsRequestData(token: string) {
+  public static getAuthorisedRequestData(token: string) {
     var headers = new Headers();
     headers.append('Authorization', 'Bearer ' + token);
 
@@ -387,6 +492,20 @@ class OpenBankingApiHelper {
     return requestData;
   }
 
+  public static getAccountsUrl(apiConfig: OpenBankingApiConfig): string {
+    var api: string = this.getApi(apiConfig);
+    var endpoint: string = this.getAccountsEndpoint(apiConfig);
+    var url: string = api + endpoint;
+    return url;
+  }
+
+  public static getTransactionsUrl(apiConfig: OpenBankingApiConfig, accountId: string): string {
+    var api: string = this.getApi(apiConfig);
+    var endpoint: string = this.getTransactionsEndpoint(apiConfig, accountId);
+    var url: string = api + endpoint;
+    return url;
+  }
+
   public static processAccountsResponse(apiConfig: OpenBankingApiConfig, json: any): AccountsResponse {
     var accountsResponse: AccountsResponse = {
       accounts: undefined,
@@ -394,7 +513,7 @@ class OpenBankingApiHelper {
     }
     switch(apiConfig.provider){
       case OpenBankingApiProivder.Tink:
-        const { accounts, error_details }: TinkAccountsJSONResponse = Object.assign(json);
+        const { accounts, error_details }: TinkAccountsResponse = Object.assign(json);
         if (accounts){
           accountsResponse.accounts = new Array;
           accounts.forEach(tinkAccount => {
@@ -420,7 +539,7 @@ class OpenBankingApiHelper {
         }
         break;
       case OpenBankingApiProivder.TrueLayer:
-        const { results, errorMessage }: TrueLayerAccountsJSONResponse = Object.assign(json);
+        const { results, errorMessage }: TrueLayerAccountsResponse = Object.assign(json);
         if (results){
           accountsResponse.accounts = new Array;
           results.forEach(result => {
@@ -452,8 +571,154 @@ class OpenBankingApiHelper {
     return accountsResponse;
   }
 
+  public static processTransactionsResponse(apiConfig: OpenBankingApiConfig, json: any): TransactionsResponse {
+    var transactionsResponse: TransactionsResponse = {
+      transactions: undefined,
+      error: undefined
+    }
+    switch(apiConfig.provider){
+      case OpenBankingApiProivder.Tink:
+        const { transactions, error_details }: TinkTransactionsResponse = Object.assign(json);
+        if (transactions){
+          transactionsResponse.transactions = new Array;
+          transactions.forEach(tinkTransaction => {
+            var transaction: Transaction = {
+              timestamp: tinkTransaction.dates.booked,
+              description: tinkTransaction.descriptions.original,
+              transaction_type: tinkTransaction.types.type,
+              amount: Number(tinkTransaction.amount.value),
+              currency: tinkTransaction.amount.currencyCode
+            }
+            if (!transactionsResponse.transactions){
+              throw "Transactions array has not been initalised";
+            }
+            transactionsResponse.transactions.push(
+              transaction
+            )
+          });
+        }
+        if (error_details){
+          transactionsResponse.error = JSON.stringify(error_details);
+        }
+        break;
+      case OpenBankingApiProivder.TrueLayer:
+        const { results, errorMessage }: TrueLayerTransactionsResponse = Object.assign(json);
+        if (results){
+          transactionsResponse.transactions = new Array;
+          results.forEach(result => {
+            var transaction: Transaction = {
+              timestamp: result.timestamp,
+              description: result.description,
+              transaction_type: result.transaction_type,
+              amount: result.amount,
+              currency: result.currency
+            }
+            if (!transactionsResponse.transactions){
+              throw "Transactions array has not been initalised";
+            }
+            transactionsResponse.transactions.push(
+              transaction
+            )
+          });
+        }
+        if (errorMessage){
+          transactionsResponse.error = errorMessage;
+        }
+        break;
+      default:
+        var error = 'Open Banking API ' + OpenBankingApiProivder[apiConfig.provider] + ' not implimented';
+        throw error;
+    }
+    return transactionsResponse;
+  }
+
+  public static fetchAccounts(apiConfig: OpenBankingApiConfig, token: string): AccountsResponse {
+    var accountsUrl = OpenBankingApiHelper.getAccountsUrl(apiConfig);
+    var requestData = OpenBankingApiHelper.getAuthorisedRequestData(token);
+    var status: number = 400;
+
+    try {
+        const response = await fetch(accountsUrl, requestData);
+        try {
+            const resText = await response.text();
+            try {
+                const resJson = JSON.parse(resText);
+                try {
+                    const { accounts, error }: AccountsResponse = OpenBankingApiHelper.processAccountsResponse(
+                      apiConfig, resJson);
+                    if (response.ok) {
+                        if (accounts) {
+                            context.res = {
+                                status: 200,
+                                body: {
+                                    accounts: accounts
+                                }
+                            };
+                            return;
+                        } else {
+                            var errorMsg = "Did not find 'accounts' in response data";
+                            context.log(errorMsg);
+                            context.res = {
+                                status: 400,
+                                body: { error: errorMsg }
+                            };
+                            return;
+                        }
+                    } else {
+                        var errorMsg: string = "Response not ok: " + error;
+                        context.log(errorMsg);
+                        context.log(resJson);
+                        context.res = {
+                            status: 400,
+                            body: { error: errorMsg }
+                        };
+                        return;
+                    }
+                } catch (error) {
+                    var errorMsg: string = "Failed to process json response: " + (error);
+                    context.log(errorMsg);
+                    context.log(resJson);
+                    context.res = {
+                        status: 400,
+                        body: { error: errorMsg }
+                    };
+                    return;
+                }
+            } catch (error) {
+                var errorMsg: string = "Failed to parse json response: " + (error);
+                context.log(errorMsg);
+                context.log(resText);
+                context.res = {
+                    status: 400,
+                    body: { error: errorMsg }
+                };
+                return;
+            }
+        } catch (error) {
+            var errorMsg: string = "Failed to read response text: " + (error);
+            context.log(errorMsg);
+            context.res = {
+                status: 400,
+                body: { error: errorMsg }
+            };
+            return;
+        }
+    } catch (error) {
+        var errorMsg: string = "Failed to fetch response: " + (error);
+        context.log(errorMsg);
+        context.res = {
+            status: 400,
+            body: { error: errorMsg }
+        };
+        return;
+    }
+
+};
+  }
+
 }
 
 export { OpenBankingApiProivder, OpenBankingApiConfig, OpenBankingApiHelper };
 export { Accounts, AccountsResponse };
-export { BankTokenJSONResponse };
+export { BankTokenResponse };
+export { SpendingInfo, SpendingInfoResponse };
