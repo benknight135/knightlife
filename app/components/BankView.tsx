@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import BankConnectButton from './BankConnectButton';
 import BankAccountList from './BankAccountList';
 import { OpenBankingApiConfig } from './Banking';
@@ -70,7 +70,7 @@ const BankView = ({appStartURL, openBankingApiConfig}: BankViewProps) => {
         var apiEndpoint: string = "/api/BankToken";
         const { authToken, isLoadingAuthToken } = useBankAuthToken(apiEndpoint, authCode, openBankingApiConfig);
         if (isLoadingAuthToken){
-            return <Text>{"Bank auth code:" + authCode}</Text>
+            return <ActivityIndicator />
         } else {
             return (
                 <BankAccountList

@@ -16,6 +16,7 @@ const BankConnectButton = ({title, openBankingApiConfig, redirectUri}: BankConne
   }
   try{
     var url: string = OpenBankingApiHelper.generateConnectUrl(openBankingApiConfig, redirectUri);
+    console.log(url);
   } catch {
     return <Text>Failed to generate bank connect url</Text>
   }

@@ -29,19 +29,61 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
     var openBankingApiConfig: OpenBankingApiConfig = Object.assign(openBankingApiConfigReq);
 
+    if (openBankingApiConfig.provider == OpenBankingApiProivder.Tink){
+        var reason: string = "Tink not currently working";
+        context.log(reason);
+        context.res = {
+            status: 400,
+            body: { reason: reason }
+        };
+        return;
+    }
+
     var tokenUrl = OpenBankingApiHelper.getTokenUrl(openBankingApiConfig);
+    context.log(tokenUrl);
     var requestData = OpenBankingApiHelper.generateTokenRequestData(
         openBankingApiConfig,
         "https://4280-benknight135-knightlife-ef6oiv6dvsu.ws-eu88.gitpod.io/bankConnectCallback",
         code
     )
+    context.log(JSON.stringify(requestData));
 
     try {
         const response = await fetch(tokenUrl, requestData);
-        try {
-            const json = await response.json();
-            if (response.status != 200){
-                var reason: string = "Invalid response: " + JSON.stringify(json);
+        if (response.ok){
+            try {
+                const text = await response.text();
+                try {
+                    const json = JSON.parse(text);
+                    if (response.status != 200){
+                        var reason: string = "Invalid response: " + JSON.stringify(json);
+                        context.log(reason);
+                        context.res = {
+                            status: 400,
+                            body: { reason: reason }
+                        };
+                        return;
+                    }
+                    var access_token = json.access_token;
+                    context.res = {
+                        status: 200,
+                        body: {
+                            access_token: access_token
+                        }
+                    };
+                    return;
+                } catch (error) {
+                    var reason: string = "Failed to process response json: " + (error);
+                    context.log(text);
+                    context.log(reason);
+                    context.res = {
+                        status: 400,
+                        body: { reason: reason }
+                    };
+                    return;
+                }
+            } catch (error) {
+                var reason: string = "Failed to process response text: " + (error);
                 context.log(reason);
                 context.res = {
                     status: 400,
@@ -49,16 +91,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                 };
                 return;
             }
-            var access_token = json.access_token;
-            context.res = {
-                status: 200,
-                body: {
-                    access_token: access_token
-                }
-            };
-            return;
-        } catch (error) {
-            var reason: string = error;
+        } else {
+            var reason: string = "Response not ok";
             context.log(reason);
             context.res = {
                 status: 400,
@@ -67,7 +101,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             return;
         }
     } catch (error) {
-        var reason: string = error;
+        var reason: string = "Failed to fetch response: " + (error);
         context.log(reason);
         context.res = {
             status: 400,

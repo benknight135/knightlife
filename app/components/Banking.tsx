@@ -74,7 +74,7 @@ class OpenBankingApiHelper {
         }
         break;
       case OpenBankingApiProivder.TrueLayer:
-        api = "https://auth.truelayer-sandbox.com";
+        api = "https://auth.truelayer.com";
         if (apiConfig.useSandbox) {
           api = "https://auth.truelayer-sandbox.com";
         }
@@ -90,13 +90,13 @@ class OpenBankingApiHelper {
     var api: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        api = "https://link.tink.com";
+        api = "https://api.tink.com";
         if (apiConfig.useSandbox) {
-          api = "https://link.tink.com";
+          api = "https://api.tink.com";
         }
         break;
       case OpenBankingApiProivder.TrueLayer:
-        api = "https://api.truelayer-sandbox.com";
+        api = "https://api.truelayer.com";
         if (apiConfig.useSandbox) {
           api = "https://api.truelayer-sandbox.com";
         }
@@ -145,13 +145,13 @@ class OpenBankingApiHelper {
     var clientId: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        clientId = "e510fbadcd714f7ca5ef141d4923f6c1";
+        clientId = "9dc635fa50fc4efb85ff831759df293e";
         if (apiConfig.useSandbox) {
           clientId = "e510fbadcd714f7ca5ef141d4923f6c1";
         }
         break;
       case OpenBankingApiProivder.TrueLayer:
-        clientId = "sandbox-knightlife-c74f1f";
+        clientId = "knightlife-c74f1f";
         if (apiConfig.useSandbox) {
           clientId = "sandbox-knightlife-c74f1f";
         }
@@ -167,13 +167,13 @@ class OpenBankingApiHelper {
     var clientSecret: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        clientSecret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
+        clientSecret = "22c13d3a5f98434bb3becc202642144d";
         if (apiConfig.useSandbox) {
-          clientSecret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
+          clientSecret = "8b4c5a0be2f1486aa2d669207504d124";
         }
         break;
       case OpenBankingApiProivder.TrueLayer:
-        clientSecret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
+        clientSecret = "4b8a24f2-1e9d-4d1f-80fb-da4dc0697923";
         if (apiConfig.useSandbox) {
           clientSecret = "42485d39-d77e-4d7e-a24e-fded84cdd7f7";
         }
