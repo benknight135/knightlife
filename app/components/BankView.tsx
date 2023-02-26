@@ -3,7 +3,7 @@ import { ActivityIndicator } from 'react-native';
 import { OpenBankingApiConfig } from './Banking';
 import BankConnectButton from './BankConnectButton';
 import BankAccountList from './BankAccountList';
-import SpendingWheel from './SpendingWheel';
+import SpendingView from './SpendingView';
 
 type BankViewProps = {
     appStartUrl: URL | null,
@@ -21,8 +21,8 @@ function authCodeFromURL(url: URL | null): string | null {
     if (url == null){
         return null;
     }
-    // only process code if correct callback is in url e.g. https://X.X.X/bankConnectCallback
-    if (url.pathname != "/bankConnectCallback"){
+    // only process code if correct callback is in url e.g. https://X.X.X/callback
+    if (url.pathname != "/callback"){
         return null;
     }
     const urlParams: URLSearchParams = new URLSearchParams(url.search);
@@ -79,7 +79,7 @@ const BankView = ({appStartUrl, openBankingApiConfig}: BankViewProps) => {
         return <ActivityIndicator />
     }
     var authCode: string | null = authCodeFromURL(appStartUrl);
-    var redirectUri: string = new URL("/bankConnectCallback", appStartUrl.origin).toString();
+    var redirectUri: string = new URL("/callback", appStartUrl.origin).toString();
     if (authCode != null){
         var apiEndpoint: string = "/api/BankToken";
         const { authToken, isLoadingAuthToken } = useBankAuthToken(
@@ -93,7 +93,7 @@ const BankView = ({appStartUrl, openBankingApiConfig}: BankViewProps) => {
                         authToken={authToken}
                         openBankingApiConfig={openBankingApiConfig}
                     />
-                    <SpendingWheel
+                    <SpendingView
                         authToken={authToken}
                         openBankingApiConfig={openBankingApiConfig}
                     />

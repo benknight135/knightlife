@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text } from 'react-native';
 import { OpenBankingApiConfig } from './Banking';
 import { SpendingInfoResponse, SpendingInfo } from './Banking';
+import { AccountInfo } from './Banking';
 
-type SpendingWheelProps = {
+type SpendingViewProps = {
     openBankingApiConfig: OpenBankingApiConfig;
     authToken: string | null;
 };
@@ -57,7 +58,47 @@ const useSpendingInfo = (apiEndpoint: string, authToken: string, openBankingApiC
     return { spendingInfo, isLoadingSpendingInfo };
 };
 
-const SpendingWheel = ({openBankingApiConfig, authToken}: SpendingWheelProps) => {
+type TransactionTableProps = {
+    accountInfo: AccountInfo;
+};
+
+const TransactionTable = ({accountInfo}: TransactionTableProps) => {
+    const tableId = accountInfo.account.id + "table";
+    var noData = (
+        <Text>No Data</Text>
+    )
+    var tableRows = accountInfo.transactions.map((transaction, index) => {
+        const tableRowId = index + tableId + transaction.id + transaction.timestamp + transaction.description;
+        return (
+            <tr key={tableRowId}>
+                <td key={tableRowId + "description"}>{transaction.description}</td>
+                <td key={tableRowId + "amount"}>{transaction.amount}</td>
+                <td key={tableRowId + "timestamp"}>{transaction.timestamp}</td>
+            </tr>
+        )
+    })
+    var table = (
+        <table>
+            <thead key={accountInfo.account.id + "transactionsHead"}>
+                <tr key={accountInfo.account.id + "transactionsHeader"}>
+                    <th key={accountInfo.account.id + "transactionsHeaderDescription"}>Description</th>
+                    <th key={accountInfo.account.id + "transactionsHeaderAmount"}>Amount</th>
+                    <th key={accountInfo.account.id + "transactionsHeaderTime"}>Time</th>
+                </tr>
+            </thead>
+            <tbody key={accountInfo.account.id + "transactionsBody"}>
+                {tableRows}
+            </tbody>
+        </table>
+    )
+    return (
+        <div>
+            {accountInfo.transactions.length ? table : noData}
+        </div>
+    )
+}
+
+const SpendingView = ({openBankingApiConfig, authToken}: SpendingViewProps) => {
     if (authToken != null){
         var apiEndpoint: string = "/api/SpendingInfo";
         const { spendingInfo, isLoadingSpendingInfo } = useSpendingInfo(apiEndpoint, authToken, openBankingApiConfig);
@@ -67,20 +108,21 @@ const SpendingWheel = ({openBankingApiConfig, authToken}: SpendingWheelProps) =>
             if (spendingInfo == null){
                 return <ActivityIndicator />
             }
-            const render = spendingInfo.accountsInfo.map((accountInfo) => (
-                <li key={accountInfo.account.id}>{accountInfo.account.name}
-                    <ul>
-                    {accountInfo.transactions.map((transaction) => {
-                        return <li key={accountInfo.account.id + transaction.timestamp}>{transaction.description + ": " + transaction.timestamp}</li>;
-                    })}
-                    </ul>
-                </li>
+            const accountTables = spendingInfo.accountsInfo.map((accountInfo, index) => (
+                <div key={index + accountInfo.account.id + "tableDiv"}>
+                    <Text key={index + accountInfo.account.id + "textHeader"}>{accountInfo.account.name}</Text>
+                    <TransactionTable key={index + accountInfo.account.id + "transactionTable"} accountInfo={accountInfo}/>
+                </div>
             ));
-            return (<ul>{render}</ul>)
+            return (
+                <div>
+                    {accountTables}
+                </div>
+            )
         }
     }
     
     return <ActivityIndicator />
 };
 
-export default SpendingWheel;
+export default SpendingView;

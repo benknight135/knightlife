@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {Alert, Button, Linking} from 'react-native';
+import {Alert, Button, Linking, Platform} from 'react-native';
 
 type LinkButtonProps = {
   title: string;
@@ -12,9 +12,13 @@ const LinkButton = ({title, url}: LinkButtonProps) => {
     const supported = await Linking.canOpenURL(url);
 
     if (supported) {
-      // Opening the link with some app, if the URL scheme is "http" the web link should be opened
-      // by some browser in the mobile
-      await Linking.openURL(url);
+      if (Platform.OS === 'web') {
+        window.open(url, "_self");
+      } else {
+        // Opening the link with some app, if the URL scheme is "http" the web link should be opened
+        // by some browser in the mobile
+        await Linking.openURL(url);
+      }
     } else {
       Alert.alert(`Don't know how to open this URL: ${url}`);
     }

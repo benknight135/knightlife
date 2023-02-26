@@ -264,6 +264,7 @@ type TinkTransactionsResponse = {
 }
 
 type Transaction = {
+  id: string
   timestamp: string,
   description: string,
   transaction_type: string,
@@ -283,10 +284,19 @@ type TransactionsFetchResponse = {
   body: TransactionsResponse
 }
 
+type SpendingAnalysis = {
+  startBalance: number,
+  endBalance: number,
+  debit: number,
+  credit: number,
+  net: number
+}
+
 type AccountInfo = {
   account: Account,
   balance: Balance,
-  transactions: Transactions
+  transactions: Transactions,
+  analysis: SpendingAnalysis
 }
 
 type AccountsInfo = Array<AccountInfo>;
@@ -732,10 +742,11 @@ class OpenBankingApiHelper {
           transactionsResponse.transactions = new Array;
           transactions.forEach(tinkTransaction => {
             var transaction: Transaction = {
+              id: tinkTransaction.identifiers.providerTransactionId,
               timestamp: tinkTransaction.dates.booked,
               description: tinkTransaction.descriptions.original,
               transaction_type: tinkTransaction.types.type,
-              amount: Number(tinkTransaction.amount.value),
+              amount: tinkTransaction.amount.value.unscaledValue,
               currency: tinkTransaction.amount.currencyCode
             }
             if (!transactionsResponse.transactions) {
@@ -756,6 +767,7 @@ class OpenBankingApiHelper {
           transactionsResponse.transactions = new Array;
           results.forEach(result => {
             var transaction: Transaction = {
+              id: result.provider_transaction_id,
               timestamp: result.timestamp,
               description: result.description,
               transaction_type: result.transaction_type,
@@ -1027,5 +1039,6 @@ export { OpenBankingApiProivder, OpenBankingApiConfig, OpenBankingApiHelper };
 export { Accounts, AccountsResponse };
 export { AccountsFetchResponse, TransactionsFetchResponse, BalanceFetchResponse }
 export { TokenResponse };
-export { SpendingInfo, SpendingInfoResponse };
+export { SpendingInfo, SpendingInfoResponse, SpendingAnalysis };
 export { Account, AccountsInfo, AccountInfo };
+export { Transaction }

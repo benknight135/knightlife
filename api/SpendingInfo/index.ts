@@ -3,6 +3,7 @@ import { OpenBankingApiConfig, OpenBankingApiHelper, SpendingInfoResponse } from
 import { AccountsFetchResponse, TransactionsFetchResponse } from "../Shared/Banking";
 import { BalanceFetchResponse } from "../Shared/Banking";
 import { Account, AccountsInfo } from "../Shared/Banking";
+import { SpendingAnalysis } from "../Shared/Banking";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a spending info request.');
@@ -75,10 +76,41 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             return Date.parse(b.timestamp) - Date.parse(a.timestamp);
         });
 
+        const fromUnix = new Date().setDate(new Date().getDate() - 14) / 1000;
+        const untilUnix = new Date().getTime() / 1000;
+        let filteredTransactions = sortedTransactions.filter(transaction =>
+            (new Date(transaction.timestamp).getTime() / 1000) >= fromUnix && 
+            (new Date(transaction.timestamp).getTime() / 1000) <= untilUnix);
+
+        var endBalance = balanceFetch.body.balance.current;
+        var startBalance: number = endBalance;
+        var debit: number = 0;
+        var credit: number = 0;
+        for (var j = 0; j < filteredTransactions.length; j++) {
+            var transaction = filteredTransactions[i];
+            startBalance -= transaction.amount;
+            if (transaction.amount > 0){
+                debit += transaction.amount;
+            }
+            if (transaction.amount < 0){
+                credit += transaction.amount;
+            }
+        }
+
+        var analysis: SpendingAnalysis = {
+            startBalance: startBalance,
+            endBalance: endBalance,
+            debit: debit,
+            credit: credit,
+            net: undefined
+        }
+        analysis.net = analysis.debit - analysis.credit;
+
         accountsInfo.push({
             account: account,
             balance: balanceFetch.body.balance,
-            transactions: sortedTransactions
+            transactions: filteredTransactions,
+            analysis: analysis
         })
     }
 
