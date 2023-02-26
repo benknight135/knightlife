@@ -67,7 +67,7 @@ export default function App() {
   const apiVersionEndpoint: string = apiBaseURl + "/Version";
   const openBankingApiConfig: OpenBankingApiConfig = {
     provider: OpenBankingApiProivder.TrueLayer,
-    useSandbox: false
+    useSandbox: true
   };
 
   const { startUrl: appStartUrl, processing: isLoadingAppStartURL } = useAppStartURL();
