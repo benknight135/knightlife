@@ -87,12 +87,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         var debit: number = 0;
         var credit: number = 0;
         for (var j = 0; j < filteredTransactions.length; j++) {
-            var transaction = filteredTransactions[i];
+            var transaction = filteredTransactions[j];
             startBalance -= transaction.amount;
-            if (transaction.amount > 0){
-                debit += transaction.amount;
-            }
             if (transaction.amount < 0){
+                debit += -transaction.amount;
+            }
+            if (transaction.amount > 0){
                 credit += transaction.amount;
             }
         }
@@ -104,7 +104,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             credit: credit,
             net: undefined
         }
-        analysis.net = analysis.debit - analysis.credit;
+        analysis.net = analysis.credit - analysis.debit;
 
         accountsInfo.push({
             account: account,

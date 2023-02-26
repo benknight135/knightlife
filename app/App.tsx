@@ -4,6 +4,7 @@ import { Linking, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { OpenBankingApiConfig, OpenBankingApiProivder } from './components/Banking';
 import BankView from './components/BankView';
+import { Provider as PaperProvider } from "react-native-paper";
 
 type APIVersion = {
   version: string;
@@ -17,7 +18,7 @@ const useAppStartURL = () => {
     const getUrlAsync = async () => {
       // Get the deep link used to open the app
       const initialUrl: string | null = await Linking.getInitialURL();
-      if (initialUrl != null){
+      if (initialUrl != null) {
         setStartUrl(new URL(initialUrl));
       }
       setProcessing(false);
@@ -81,7 +82,6 @@ export default function App() {
       ) : (
         <Text>{apiVersion.version}</Text>
       )}
-
       {isLoadingAppStartURL ? (
         <ActivityIndicator />
       ) : (
@@ -90,8 +90,6 @@ export default function App() {
           openBankingApiConfig={openBankingApiConfig}
         />
       )}
-
-      <StatusBar style="auto" />
     </View>
   );
 }
@@ -99,8 +97,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  }
 });

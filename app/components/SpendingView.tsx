@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Text } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import { OpenBankingApiConfig } from './Banking';
 import { SpendingInfoResponse, SpendingInfo } from './Banking';
-import { AccountInfo } from './Banking';
+import AccountView from './AccountView';
 
 type SpendingViewProps = {
     openBankingApiConfig: OpenBankingApiConfig;
@@ -15,7 +15,7 @@ const useSpendingInfo = (apiEndpoint: string, authToken: string, openBankingApiC
 
     useEffect(() => {
         const getAuthTokenAsync = async () => {
-            if (apiEndpoint == null){
+            if (apiEndpoint == null) {
                 setSpendingInfo(null);
                 setLoadingSpendingInfo(false);
                 return;
@@ -32,7 +32,7 @@ const useSpendingInfo = (apiEndpoint: string, authToken: string, openBankingApiC
                 };
                 const response = await fetch(apiEndpoint, requestData);
                 try {
-                    const {spendingInfo: spendingInfoJson, error}: SpendingInfoResponse = await response.json()
+                    const { spendingInfo: spendingInfoJson, error }: SpendingInfoResponse = await response.json()
                     if (response.ok) {
                         if (spendingInfoJson) {
                             var spendingInfo: SpendingInfo = Object.assign(spendingInfoJson)
@@ -58,70 +58,31 @@ const useSpendingInfo = (apiEndpoint: string, authToken: string, openBankingApiC
     return { spendingInfo, isLoadingSpendingInfo };
 };
 
-type TransactionTableProps = {
-    accountInfo: AccountInfo;
-};
-
-const TransactionTable = ({accountInfo}: TransactionTableProps) => {
-    const tableId = accountInfo.account.id + "table";
-    var noData = (
-        <Text>No Data</Text>
-    )
-    var tableRows = accountInfo.transactions.map((transaction, index) => {
-        const tableRowId = index + tableId + transaction.id + transaction.timestamp + transaction.description;
-        return (
-            <tr key={tableRowId}>
-                <td key={tableRowId + "description"}>{transaction.description}</td>
-                <td key={tableRowId + "amount"}>{transaction.amount}</td>
-                <td key={tableRowId + "timestamp"}>{transaction.timestamp}</td>
-            </tr>
-        )
-    })
-    var table = (
-        <table>
-            <thead key={accountInfo.account.id + "transactionsHead"}>
-                <tr key={accountInfo.account.id + "transactionsHeader"}>
-                    <th key={accountInfo.account.id + "transactionsHeaderDescription"}>Description</th>
-                    <th key={accountInfo.account.id + "transactionsHeaderAmount"}>Amount</th>
-                    <th key={accountInfo.account.id + "transactionsHeaderTime"}>Time</th>
-                </tr>
-            </thead>
-            <tbody key={accountInfo.account.id + "transactionsBody"}>
-                {tableRows}
-            </tbody>
-        </table>
-    )
-    return (
-        <div>
-            {accountInfo.transactions.length ? table : noData}
-        </div>
-    )
-}
-
-const SpendingView = ({openBankingApiConfig, authToken}: SpendingViewProps) => {
-    if (authToken != null){
+const SpendingView = ({ openBankingApiConfig, authToken }: SpendingViewProps) => {
+    if (authToken != null) {
         var apiEndpoint: string = "/api/SpendingInfo";
         const { spendingInfo, isLoadingSpendingInfo } = useSpendingInfo(apiEndpoint, authToken, openBankingApiConfig);
-        if (isLoadingSpendingInfo){
+        if (isLoadingSpendingInfo) {
             return <ActivityIndicator />
         } else {
-            if (spendingInfo == null){
+            if (spendingInfo == null) {
                 return <ActivityIndicator />
             }
-            const accountTables = spendingInfo.accountsInfo.map((accountInfo, index) => (
-                <div key={index + accountInfo.account.id + "tableDiv"}>
-                    <Text key={index + accountInfo.account.id + "textHeader"}>{accountInfo.account.name}</Text>
-                    <TransactionTable key={index + accountInfo.account.id + "transactionTable"} accountInfo={accountInfo}/>
-                </div>
+            const accountViews = spendingInfo.accountsInfo.map((accountInfo, index) => (
+                <AccountView
+                    accountInfo={accountInfo}
+                    index={index}
+                    key={accountInfo.account.id + "AccountView"}
+                />
             ));
             return (
                 <div>
-                    {accountTables}
+                    {accountViews}
                 </div>
             )
         }
     }
-    
+
     return <ActivityIndicator />
 };
 
