@@ -286,8 +286,7 @@ type TransactionsFetchResponse = {
 type AccountInfo = {
   account: Account,
   balance: Balance,
-  transactions: Transactions,
-  duplicateTransactions: any
+  transactions: Transactions
 }
 
 type AccountsInfo = Array<AccountInfo>;

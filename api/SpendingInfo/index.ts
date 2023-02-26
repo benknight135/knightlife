@@ -3,7 +3,6 @@ import { OpenBankingApiConfig, OpenBankingApiHelper, SpendingInfoResponse } from
 import { AccountsFetchResponse, TransactionsFetchResponse } from "../Shared/Banking";
 import { BalanceFetchResponse } from "../Shared/Banking";
 import { Account, AccountsInfo } from "../Shared/Banking";
-import { getDuplicates } from "../Shared/Common";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a spending info request.');
@@ -72,20 +71,14 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             return;
         }
 
-        var transactionNames: Array<string> = []
-        for (var j = 0; j < transactionsFetch.body.transactions.length; j++) {
-            transactionNames.push(transactionsFetch.body.transactions[j].description);
-        }
-        const duplicateCounts = {};
-        transactionNames.forEach(function (x) { duplicateCounts[x] = (duplicateCounts[x] || 0) + 1; });
-
-        context.log(duplicateCounts);
+        var sortedTransactions = [...transactionsFetch.body.transactions].sort(function(a, b){
+            return Date.parse(b.timestamp) - Date.parse(a.timestamp);
+        });
 
         accountsInfo.push({
             account: account,
             balance: balanceFetch.body.balance,
-            transactions: transactionsFetch.body.transactions,
-            duplicateTransactions: duplicateCounts
+            transactions: sortedTransactions
         })
     }
 
