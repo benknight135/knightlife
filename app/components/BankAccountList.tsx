@@ -68,7 +68,7 @@ const BankAccountList = ({openBankingApiConfig, authToken}: BankAccoutLinkProps)
                 return <ActivityIndicator />
             }
             const accountItems = accounts.map((account) =>
-                <li>{account.name}</li>
+                <li key={account.id}>{account.name}</li>
             );
             return (
                 <ul>{accountItems}</ul>

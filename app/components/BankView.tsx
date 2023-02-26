@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
+import { OpenBankingApiConfig } from './Banking';
 import BankConnectButton from './BankConnectButton';
 import BankAccountList from './BankAccountList';
-import { OpenBankingApiConfig } from './Banking';
+import SpendingWheel from './SpendingWheel';
 
 type BankViewProps = {
     appStartUrl: URL | null,
@@ -87,10 +88,16 @@ const BankView = ({appStartUrl, openBankingApiConfig}: BankViewProps) => {
             return <ActivityIndicator />
         } else {
             return (
-                <BankAccountList
-                    authToken={authToken}
-                    openBankingApiConfig={openBankingApiConfig}
-                />
+                <div>
+                    <BankAccountList
+                        authToken={authToken}
+                        openBankingApiConfig={openBankingApiConfig}
+                    />
+                    <SpendingWheel
+                        authToken={authToken}
+                        openBankingApiConfig={openBankingApiConfig}
+                    />
+                </div>
             )
         }
     }
