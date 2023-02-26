@@ -76,7 +76,13 @@ type TinkAmount = {
   }
 }
 
-type TinkBalance = {
+type TinkBalanceV1 = {
+  currencyCode: string,
+  scale: number,
+  unscaledValue: number
+}
+
+type TinkBalanceV2 = {
   amount: TinkAmount
 }
 
@@ -85,8 +91,8 @@ type TinkAccount = {
   name: string,
   type: string,
   balances: {
-    booked: TinkBalance,
-    available: TinkBalance
+    booked: TinkBalanceV2,
+    available: TinkBalanceV2
   },
   identifiers: {
     iban: {
@@ -164,20 +170,9 @@ type TrueLayerBalanceResponse = {
 type TinkBalanceResponse = {
   accountId?: string
   balances?: {
-    available: TinkBalance,
-    availableBalanceExcludingCredit: TinkBalance,
-    availableBalanceIncludingCredit: TinkBalance,
-    booked: TinkBalance,
-    bookedBalance: TinkBalance
-  },
-  creditLimit?: {
-    amount: {
-      currencyCode: string,
-      value: {
-        scale: number,
-        unscaledValue: number
-      }
-    }
+    available: TinkBalanceV1,
+    booked: TinkBalanceV1,
+    creditLimit: TinkBalanceV1 | null
   },
   refreshed?: string,
   error?: string,
@@ -378,7 +373,7 @@ class OpenBankingApiHelper {
     var apiOptions: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        apiOptions = '&market=GB&locale=en_US';
+        apiOptions = '&scope=accounts%3Aread%2Ctransactions%3Areadbalances%3Aread&market=GB&locale=en_US';
         break;
       case OpenBankingApiProivder.TrueLayer:
         apiOptions = '&response_type=code&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&providers=uk-cs-mock%20uk-ob-all%20uk-oauth-all';
@@ -503,7 +498,7 @@ class OpenBankingApiHelper {
     var endpoint: string;
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        endpoint = '/data/v2/accounts/' + accountId + '/balances';
+        endpoint = '/api/v1/accounts/' + accountId + '/balances';
         break;
       case OpenBankingApiProivder.TrueLayer:
         endpoint = '/data/v1/accounts/' + accountId + '/balance';
@@ -682,13 +677,21 @@ class OpenBankingApiHelper {
     }
     switch (apiConfig.provider) {
       case OpenBankingApiProivder.Tink:
-        const { balances, creditLimit, error_details }: TinkBalanceResponse = Object.assign(json);
-        if (balances && creditLimit) {
+        const { balances, error_details }: TinkBalanceResponse = Object.assign(json);
+        if (balances) {
+          var creditLimit = balances.creditLimit
+          if (creditLimit == null){
+            creditLimit = {
+              currencyCode: balances.available.currencyCode,
+              scale: balances.available.scale,
+              unscaledValue: 0
+            }
+          }
           balanceResponse.balance = {
-            currency: balances.available.amount.currencyCode,
-            available: balances.available.amount.value.unscaledValue,
-            current: balances.availableBalanceExcludingCredit.amount.value.unscaledValue,
-            overdraft: creditLimit.amount.value.unscaledValue
+            currency: balances.available.currencyCode,
+            available: balances.available.unscaledValue,
+            current: balances.booked.unscaledValue,
+            overdraft: creditLimit.unscaledValue
           };
         }
         if (error_details) {
