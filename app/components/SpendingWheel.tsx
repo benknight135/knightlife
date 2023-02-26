@@ -68,7 +68,7 @@ const SpendingWheel = ({openBankingApiConfig, authToken}: SpendingWheelProps) =>
                 return <ActivityIndicator />
             }
             const render = spendingInfo.accountsInfo.map((accountInfo) => (
-                <li>{accountInfo.account.name}
+                <li key={accountInfo.account.id}>{accountInfo.account.name}
                     <ul>
                     {Object.entries(accountInfo.duplicateTransactions).map(([key, val]) => {
                         return <li key={accountInfo.account.id + key}>{key + " " + val}</li>;
