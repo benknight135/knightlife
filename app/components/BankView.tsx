@@ -87,7 +87,6 @@ const BankView = ({authCode, redirectUri, openBankingApiConfig}: BankViewProps) 
             )
         }
     }
-    console.log(redirectUri);
     
     return <BankConnectButton
         title='Connect Bank'
