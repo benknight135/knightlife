@@ -1,10 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Linking, ActivityIndicator } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { OpenBankingApiConfig, OpenBankingApiProivder } from './components/Banking';
 import BankView from './components/BankView';
-import { Provider as PaperProvider } from "react-native-paper";
+import { OpenBankingApiConfig, OpenBankingApiHelper } from './components/Banking';
 
 type APIVersion = {
   version: string;
@@ -30,8 +28,20 @@ const useAppStartURL = () => {
   return { startUrl, processing };
 };
 
+function getAuthCodeFromURL(url: URL | null): string | null {
+  if (url == null){
+      return null;
+  }
+  // only process code if correct callback is in url e.g. https://X.X.X/callback
+  if (url.pathname != "/callback"){
+      return null;
+  }
+  const urlParams: URLSearchParams = new URLSearchParams(url.search);
+  const code: string | null = urlParams.get("code");
+  return code;
+}
 
-const useAPIVerrsion = (apiVersionEndpoint: string) => {
+const useAPIVersion = (apiVersionEndpoint: string) => {
   const [isLoadingAPIVersion, setLoadingAPIVersion] = useState<boolean>(true);
   const [apiVersion, setAPIVersion] = useState<APIVersion>({ version: "0.0.0.0" });
 
@@ -66,13 +76,16 @@ const useAPIVerrsion = (apiVersionEndpoint: string) => {
 export default function App() {
   const apiBaseURl: string = "/api";
   const apiVersionEndpoint: string = apiBaseURl + "/Version";
-  const openBankingApiConfig: OpenBankingApiConfig = {
-    provider: OpenBankingApiProivder.TrueLayer,
-    useSandbox: true
-  };
+  var openBankingApiConfig: OpenBankingApiConfig = OpenBankingApiHelper.getOpenBankingConfig();
 
   const { startUrl: appStartUrl, processing: isLoadingAppStartURL } = useAppStartURL();
-  const { apiVersion, isLoadingAPIVersion } = useAPIVerrsion(apiVersionEndpoint);
+  const { apiVersion, isLoadingAPIVersion } = useAPIVersion(apiVersionEndpoint);
+
+  var authCode: string | null = getAuthCodeFromURL(appStartUrl);
+  var redirectUri: string | null = null;
+  if (appStartUrl != null){
+    redirectUri = new URL("/callback", appStartUrl.origin).toString();
+  }
 
   return (
     <View style={styles.container}>
@@ -86,7 +99,8 @@ export default function App() {
         <ActivityIndicator />
       ) : (
         <BankView
-          appStartUrl={appStartUrl}
+          authCode={authCode}
+          redirectUri={redirectUri}
           openBankingApiConfig={openBankingApiConfig}
         />
       )}
