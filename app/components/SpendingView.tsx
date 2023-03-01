@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
+import env from '../utils/env';
 import { OpenBankingApiConfig } from './Banking';
 import { SpendingInfoResponse, SpendingInfo } from './Banking';
 import AccountView from './AccountView';
@@ -9,9 +10,12 @@ type SpendingViewProps = {
     authToken: string | null;
 };
 
-const useSpendingInfo = (apiEndpoint: string, authToken: string, openBankingApiConfig: OpenBankingApiConfig) => {
+const useSpendingInfo = (authToken: string, openBankingApiConfig: OpenBankingApiConfig) => {
     const [isLoadingSpendingInfo, setLoadingSpendingInfo] = useState<boolean>(true);
     const [spendingInfo, setSpendingInfo] = useState<SpendingInfo | null>(null);
+
+    const apiEndpoint: string = env.API_BASE_URL + "/SpendingInfo";
+    const apiCode: string = env.API_ACCESS_KEY;
 
     useEffect(() => {
         const getAuthTokenAsync = async () => {
@@ -27,7 +31,10 @@ const useSpendingInfo = (apiEndpoint: string, authToken: string, openBankingApiC
                 }
                 const requestData = {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'x-functions-key': apiCode,
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(requestBody)
                 };
                 const response = await fetch(apiEndpoint, requestData);
@@ -60,8 +67,7 @@ const useSpendingInfo = (apiEndpoint: string, authToken: string, openBankingApiC
 
 const SpendingView = ({ openBankingApiConfig, authToken }: SpendingViewProps) => {
     if (authToken != null) {
-        var apiEndpoint: string = "/api/SpendingInfo";
-        const { spendingInfo, isLoadingSpendingInfo } = useSpendingInfo(apiEndpoint, authToken, openBankingApiConfig);
+        const { spendingInfo, isLoadingSpendingInfo } = useSpendingInfo(authToken, openBankingApiConfig);
         if (isLoadingSpendingInfo) {
             return <ActivityIndicator />
         } else {

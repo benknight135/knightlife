@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
+import env from '../utils/env';
 import { OpenBankingApiConfig } from './Banking';
 import { AccountsResponse, Accounts } from './Banking';
 
@@ -8,9 +9,12 @@ type BankAccoutLinkProps = {
     authToken: string | null;
 };
 
-const useAccounts = (apiEndpoint: string, authToken: string, openBankingApiConfig: OpenBankingApiConfig) => {
+const useAccounts = (authToken: string, openBankingApiConfig: OpenBankingApiConfig) => {
     const [isLoadingAccounts, setLoadingAccounts] = useState<boolean>(true);
     const [accounts, setAccounts] = useState<Accounts | null>(null);
+
+    const apiEndpoint: string = env.API_BASE_URL + "/BankAccounts";
+    const apiCode: string = env.API_ACCESS_KEY;
 
     useEffect(() => {
         const getAuthTokenAsync = async () => {
@@ -26,7 +30,10 @@ const useAccounts = (apiEndpoint: string, authToken: string, openBankingApiConfi
                 }
                 const requestData = {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'x-functions-key': apiCode,
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(requestBody)
                 };
                 const response = await fetch(apiEndpoint, requestData);
@@ -59,8 +66,7 @@ const useAccounts = (apiEndpoint: string, authToken: string, openBankingApiConfi
 
 const BankAccountList = ({openBankingApiConfig, authToken}: BankAccoutLinkProps) => {
     if (authToken != null){
-        var apiEndpoint: string = "/api/BankAccounts";
-        const { accounts, isLoadingAccounts } = useAccounts(apiEndpoint, authToken, openBankingApiConfig);
+        const { accounts, isLoadingAccounts } = useAccounts(authToken, openBankingApiConfig);
         if (isLoadingAccounts){
             return <ActivityIndicator />
         } else {

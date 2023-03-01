@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Linking, ActivityIndicator } from 'react-native';
+import env from './utils/env';
 import BankView from './components/BankView';
 import { OpenBankingApiConfig, OpenBankingApiHelper } from './components/Banking';
 
@@ -28,7 +29,7 @@ const useAppStartURL = () => {
   return { startUrl, processing };
 };
 
-function getAuthCodeFromURL(url: URL | null): string | null {
+function getOpenBankingApiAuthCodeFromURL(url: URL | null): string | null {
   if (url == null){
       return null;
   }
@@ -41,19 +42,25 @@ function getAuthCodeFromURL(url: URL | null): string | null {
   return code;
 }
 
-const useAPIVersion = (apiVersionEndpoint: string) => {
+const useAPIVersion = () => {
   const [isLoadingAPIVersion, setLoadingAPIVersion] = useState<boolean>(true);
   const [apiVersion, setAPIVersion] = useState<APIVersion>({ version: "0.0.0.0" });
+
+  const apiEndpoint: string = env.API_BASE_URL + "/Version";
+  const apiCode: string = env.API_ACCESS_KEY;
 
   useEffect(() => {
     const getAPIVersionAsync = async () => {
       try {
         const requestData = {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'x-functions-key': apiCode,
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify({})
         };
-        const response = await fetch(apiVersionEndpoint, requestData);
+        const response = await fetch(apiEndpoint, requestData);
         try {
           const json = await response.json();
           setAPIVersion({ version: json.version });
@@ -74,14 +81,12 @@ const useAPIVersion = (apiVersionEndpoint: string) => {
 };
 
 export default function App() {
-  const apiBaseURl: string = "/api";
-  const apiVersionEndpoint: string = apiBaseURl + "/Version";
   var openBankingApiConfig: OpenBankingApiConfig = OpenBankingApiHelper.getOpenBankingConfig();
 
   const { startUrl: appStartUrl, processing: isLoadingAppStartURL } = useAppStartURL();
-  const { apiVersion, isLoadingAPIVersion } = useAPIVersion(apiVersionEndpoint);
+  const { apiVersion, isLoadingAPIVersion } = useAPIVersion();
 
-  var authCode: string | null = getAuthCodeFromURL(appStartUrl);
+  var openBankingApiAuthCode: string | null = getOpenBankingApiAuthCodeFromURL(appStartUrl);
   var redirectUri: string | null = null;
   if (appStartUrl != null){
     redirectUri = new URL("/callback", appStartUrl.origin).toString();
@@ -99,7 +104,7 @@ export default function App() {
         <ActivityIndicator />
       ) : (
         <BankView
-          authCode={authCode}
+          openBankingApiAuthCode={openBankingApiAuthCode}
           redirectUri={redirectUri}
           openBankingApiConfig={openBankingApiConfig}
         />

@@ -1,27 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
+import env from '../utils/env';
 import { OpenBankingApiConfig } from './Banking';
 import BankConnectButton from './BankConnectButton';
 import BankAccountList from './BankAccountList';
 import SpendingView from './SpendingView';
 
 type BankViewProps = {
-    authCode: string | null,
+    openBankingApiAuthCode: string | null,
     redirectUri: string | null,
     openBankingApiConfig: OpenBankingApiConfig;
 };
 
 type UseBankAuthTokenProps = {
-    apiEndpoint: string,
-    authCode: string,
+    openBankingApiAuthCode: string,
     openBankingApiConfig: OpenBankingApiConfig,
     redirectUri: string
 };
 
 const useBankAuthToken = (
-        {apiEndpoint, authCode, openBankingApiConfig, redirectUri}: UseBankAuthTokenProps) => {
+        {openBankingApiAuthCode, openBankingApiConfig, redirectUri}: UseBankAuthTokenProps) => {
     const [isLoadingAuthToken, setLoadingAuthToken] = useState<boolean>(true);
     const [authToken, setAuthToken] = useState<string | null>(null);
+
+    const apiEndpoint: string = env.API_BASE_URL + "/BankToken";
+    const apiCode: string = env.API_ACCESS_KEY;
 
     useEffect(() => {
         const getAuthTokenAsync = async () => {
@@ -32,13 +35,16 @@ const useBankAuthToken = (
             }
             try {
                 const requestBody = {
-                    code: authCode,
+                    code: openBankingApiAuthCode,
                     openBankingApiConfig: openBankingApiConfig,
                     redirectUri: redirectUri
                 }
                 const requestData = {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'x-functions-key': apiCode,
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(requestBody)
                 };
                 const response = await fetch(apiEndpoint, requestData);
@@ -61,15 +67,14 @@ const useBankAuthToken = (
     return { authToken, isLoadingAuthToken };
 };
 
-const BankView = ({authCode, redirectUri, openBankingApiConfig}: BankViewProps) => {
+const BankView = ({openBankingApiAuthCode, redirectUri, openBankingApiConfig}: BankViewProps) => {
     if (redirectUri == null){
         return <ActivityIndicator />
     }
 
-    if (authCode != null){
-        var apiEndpoint: string = "/api/BankToken";
+    if (openBankingApiAuthCode != null){
         const { authToken, isLoadingAuthToken } = useBankAuthToken(
-            {apiEndpoint, authCode, openBankingApiConfig, redirectUri});
+            {openBankingApiAuthCode, openBankingApiConfig, redirectUri});
         if (isLoadingAuthToken){
             return <ActivityIndicator />
         } else {

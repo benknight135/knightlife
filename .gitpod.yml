@@ -10,9 +10,13 @@ vscode:
     - ms-azuretools.vscode-azurefunctions
 
 ports:
-  - name: KnightLife
-    description: Knight Life App
+  - name: KnightLifeSite
+    description: Knight Life Static Site
     port: 4280
+    visibility: public
+  - name: KnightLifeApp
+    description: Knight Life App
+    port: 19006
     visibility: public
 
 github:
