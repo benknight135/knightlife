@@ -1,6 +1,6 @@
 {
   "name": "knightlife-api",
-  "version": "1.0.0.2",
+  "version": "1.0.3.0",
   "description": "Knight Life API",
   "scripts": {
     "build": "tsc",
