@@ -24,3 +24,5 @@ jobs:
           app_location: "app"
           api_location: "api"
           output_location: "web-build"
+        env:
+          OPEN_BANKING_USE_SANDBOX: false
