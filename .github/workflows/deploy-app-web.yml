@@ -24,6 +24,3 @@ jobs:
           app_location: "app"
           api_location: "api"
           output_location: "web-build"
-        # env:
-        #   API_BASE_URL: ${{ secrets.AZURE_API_BASE_URL }}
-        #   API_ACCESS_KEY: ${{ secrets.AZURE_API_ACCESS_KEY }}
