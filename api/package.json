@@ -9,6 +9,9 @@
     "start": "func start --typescript",
     "test": "echo \"No tests yet...\""
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {},
   "devDependencies": {
     "@azure/functions": "^3.0.0",
