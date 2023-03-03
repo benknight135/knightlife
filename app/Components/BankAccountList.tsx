@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
-import { env } from '../utils/env';
-import { OpenBankingApiConfig } from './Banking';
-import { AccountsResponse, Accounts } from './Banking';
+import { env } from '../Utils/env';
+import { OpenBankingApiConfig } from '../Shared/Banking';
+import { AccountsResponse, Accounts } from '../Shared/Banking';
 
 type BankAccoutLinkProps = {
     openBankingApiConfig: OpenBankingApiConfig;

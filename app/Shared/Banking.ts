@@ -1,4 +1,3 @@
-import { env } from '../utils/env';
 
 enum OpenBankingApiProivder {
   TrueLayer = 1,
@@ -313,28 +312,6 @@ type SpendingInfoResponse = {
 }
 
 class OpenBankingApiHelper {
-
-  public static getOpenBankingConfig(): OpenBankingApiConfig {
-    var openBankingApiProivder: OpenBankingApiProivder = OpenBankingApiProivder.TrueLayer
-    var openBankingApiUseSandbox = false;
-    if (env.OPEN_BANKING_PROVIDER == "truelayer"){
-      openBankingApiProivder = OpenBankingApiProivder.TrueLayer
-    }
-    if (env.OPEN_BANKING_PROVIDER == "tink"){
-      openBankingApiProivder = OpenBankingApiProivder.Tink
-    }
-    if (env.OPEN_BANKING_USE_SANDBOX){
-      openBankingApiUseSandbox = true;
-    }
-    if (!env.OPEN_BANKING_USE_SANDBOX){
-      openBankingApiUseSandbox = false;
-    }
-    var openBankingApiConfig: OpenBankingApiConfig = {
-      provider: openBankingApiProivder,
-      useSandbox: openBankingApiUseSandbox
-    };
-    return openBankingApiConfig
-  }
 
   public static getCodeApi(apiConfig: OpenBankingApiConfig): string {
     var api: string;

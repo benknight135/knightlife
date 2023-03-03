@@ -1,5 +1,5 @@
 import { Text } from 'react-native';
-import { AccountInfo } from './Banking';
+import { AccountInfo } from '../Shared/Banking';
 
 type SpendingAnalysisViewProps = {
     accountInfo: AccountInfo

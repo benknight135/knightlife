@@ -10,10 +10,12 @@
     "web": "expo start --web",
     "build:azure": "expo export:web"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "expo": "~48.0.0",
     "expo-status-bar": "~1.4.4",
-    "node-fetch": "^3.3.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.71.3",

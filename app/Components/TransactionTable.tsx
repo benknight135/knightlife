@@ -1,4 +1,4 @@
-import { AccountInfo } from './Banking';
+import { AccountInfo } from '../Shared/Banking';
 import { Text } from 'react-native';
 
 type TransactionTableProps = {

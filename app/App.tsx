@@ -1,9 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Linking, ActivityIndicator } from 'react-native';
-import { env } from './utils/env';
-import BankView from './components/BankView';
-import { OpenBankingApiConfig, OpenBankingApiHelper } from './components/Banking';
+import { env } from './Utils/env';
+import BankView from './Components/BankView';
+import { OpenBankingApiConfig, OpenBankingApiProivder } from './Shared/Banking';
+import { OpenBankingApiHelper } from './Shared/Banking';
 
 type APIVersion = {
   version: string;
@@ -28,6 +29,28 @@ const useAppStartURL = () => {
 
   return { startUrl, processing };
 };
+
+function getOpenBankingConfig(): OpenBankingApiConfig {
+  var openBankingApiProivder: OpenBankingApiProivder = OpenBankingApiProivder.TrueLayer
+  var openBankingApiUseSandbox = false;
+  if (env.OPEN_BANKING_PROVIDER == "truelayer"){
+    openBankingApiProivder = OpenBankingApiProivder.TrueLayer
+  }
+  if (env.OPEN_BANKING_PROVIDER == "tink"){
+    openBankingApiProivder = OpenBankingApiProivder.Tink
+  }
+  if (env.OPEN_BANKING_USE_SANDBOX){
+    openBankingApiUseSandbox = true;
+  }
+  if (!env.OPEN_BANKING_USE_SANDBOX){
+    openBankingApiUseSandbox = false;
+  }
+  var openBankingApiConfig: OpenBankingApiConfig = {
+    provider: openBankingApiProivder,
+    useSandbox: openBankingApiUseSandbox
+  };
+  return openBankingApiConfig
+}
 
 function getOpenBankingApiAuthCodeFromURL(url: URL | null): string | null {
   if (url == null){
@@ -81,7 +104,7 @@ const useAPIVersion = () => {
 };
 
 export default function App() {
-  var openBankingApiConfig: OpenBankingApiConfig = OpenBankingApiHelper.getOpenBankingConfig();
+  var openBankingApiConfig: OpenBankingApiConfig = getOpenBankingConfig();
 
   const { startUrl: appStartUrl, processing: isLoadingAppStartURL } = useAppStartURL();
   const { apiVersion, isLoadingAPIVersion } = useAPIVersion();
