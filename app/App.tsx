@@ -39,10 +39,10 @@ function getOpenBankingConfig(): OpenBankingApiConfig {
   if (env.OPEN_BANKING_PROVIDER == "tink"){
     openBankingApiProivder = OpenBankingApiProivder.Tink
   }
-  if (env.OPEN_BANKING_USE_SANDBOX){
+  if (env.OPEN_BANKING_USE_SANDBOX == true){
     openBankingApiUseSandbox = true;
   }
-  if (!env.OPEN_BANKING_USE_SANDBOX){
+  if (env.OPEN_BANKING_USE_SANDBOX == false){
     openBankingApiUseSandbox = false;
   }
   var openBankingApiConfig: OpenBankingApiConfig = {
