@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Linking, ActivityIndicator } from 'react-native';
-import env from './utils/env';
+import { env } from './utils/env';
 import BankView from './components/BankView';
 import { OpenBankingApiConfig, OpenBankingApiHelper } from './components/Banking';
 
@@ -91,6 +91,8 @@ export default function App() {
   if (appStartUrl != null){
     redirectUri = new URL("/callback", appStartUrl.origin).toString();
   }
+
+  console.log(env.API_BASE_URL);
 
   return (
     <View style={styles.container}>
