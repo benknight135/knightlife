@@ -33,10 +33,6 @@ function getOpenBankingApiAuthCodeFromURL(url: URL | null): string | null {
   if (url == null){
       return null;
   }
-  // only process code if correct callback is in url e.g. https://X.X.X/callback
-  if (url.pathname != "/callback"){
-      return null;
-  }
   const urlParams: URLSearchParams = new URLSearchParams(url.search);
   const code: string | null = urlParams.get("code");
   return code;
@@ -89,10 +85,8 @@ export default function App() {
   var openBankingApiAuthCode: string | null = getOpenBankingApiAuthCodeFromURL(appStartUrl);
   var redirectUri: string | null = null;
   if (appStartUrl != null){
-    redirectUri = new URL("/callback", appStartUrl.origin).toString();
+    redirectUri = appStartUrl.origin;
   }
-
-  console.log(env.API_BASE_URL);
 
   return (
     <View style={styles.container}>
