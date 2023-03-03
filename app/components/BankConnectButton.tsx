@@ -12,6 +12,7 @@ type BankConnectButtonProps = {
 const BankConnectButton = ({title, openBankingApiConfig, redirectUri}: BankConnectButtonProps) => {
   try{
     var url: string = OpenBankingApiHelper.getCodeUrl(openBankingApiConfig, redirectUri);
+    console.log(url);
   } catch {
     console.error("Failed to generate bank code url")
     return <ActivityIndicator/>

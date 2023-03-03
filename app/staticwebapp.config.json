@@ -1,0 +1,4 @@
+{
+    "route": "/callback*",
+    "rewrite": "/index.html"
+}
