@@ -270,7 +270,8 @@ type Transaction = {
   description: string,
   transaction_type: string,
   amount: number,
-  currency: string
+  currency: string,
+  account: Account,
 }
 
 type Transactions = Array<Transaction>
@@ -308,7 +309,12 @@ type AccountsInfo = Array<AccountInfo>;
 enum SpendingInfoCategory {
   Income = "Income",
   Subscription = "Subscription",
-  Spending = "Spending"
+  Spending = "Spending",
+  Ignore = "Ignore"
+}
+
+enum SpendingInfoIgnoreCategory {
+  Ignore = "Ignore"
 }
 
 enum SpendingInfoIncomeCategory {
@@ -340,6 +346,7 @@ enum SpendingInfoSpendingCategory {
   Takeaway = "Takeaway",
   EatingOut = "Eating Out",
   Entertainment = "Entertainment",
+  Saving = "Saving",
   Misc = "Misc"
 }
 
@@ -358,16 +365,22 @@ type SpendingInfoResponse = {
   error?: string
 }
 
-type SpendingInfoSubCategory = SpendingInfoIncomeCategory | SpendingInfoSubscriptionCategory | SpendingInfoSpendingCategory;
+type SpendingInfoSubCategory = SpendingInfoIgnoreCategory | SpendingInfoIncomeCategory | SpendingInfoSubscriptionCategory | SpendingInfoSpendingCategory;
 
 type GetSpendingInfoCategoryProps = {
   spendingInfoCategory: SpendingInfoCategory,
   spendingInfoSubCategory: SpendingInfoSubCategory
 }
 
+type GetSpendingInfoMatchProps = {
+  found: boolean,
+  index: number
+}
+
 type SpendingInfoMatch = {
   description: string,
-  amount: number | undefined
+  amount?: number,
+  accountName?: string
 }
 
 type SpendingInfoCategoryMatches = {
@@ -385,63 +398,366 @@ type CategorisedTransaction = {
 
 type CategorisedTransactions = Array<CategorisedTransaction>
 
+const ignoreCategoryItems = [
+  {
+    category: SpendingInfoIgnoreCategory.Ignore,
+    matches: [
+      {
+        description: "B KNIGHT"
+      },
+      {
+        description: "SPENDING"
+      },
+      {
+        description: "STANDARD SAVER"
+      },
+      {
+        description: "SAVE THE CHANGE",
+        accountName: "Savings"
+      }
+    ]
+  }
+]
+
+const incomeCategoryItems = [
+  {
+    category: SpendingInfoIncomeCategory.Work,
+    matches: [
+      {
+        description: "PAXTON ACCESS LT"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoIncomeCategory.Family,
+    matches: [
+      {
+        description: "R KNIGHT"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoIncomeCategory.Misc,
+    matches: []
+  }
+];
+
+const subscriptionCategoryItems = [
+  {
+    category: SpendingInfoSubscriptionCategory.Rent,
+    matches: [
+      {
+        description: "LINK UP LETTINGS"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Saving,
+    matches: [
+      {
+        description: "STANDARD SAVER"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Charity,
+    matches: [
+      {
+        description: "CENTREPOINT SOHO F"
+      },
+      {
+        description: "CANCER RESEARCH U"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.CouncilTax,
+    matches: [
+      {
+        description: "B&H BC"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Gaming,
+    matches: [
+      {
+        description: "Nintendo CD9292003"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Internet,
+    matches: [
+      {
+        description: "VIRGIN MEDIA PYMTS"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Mobile,
+    matches: [
+      {
+        description: "GIFFGAFF"
+      },
+      {
+        description: "giffgaff"
+      },
+      {
+        description: "APPLE.COM/BILL", // AppleCare+
+        amount: -9.49
+      },
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Music,
+    matches: [
+      {
+        description: "SPOTIFY"
+      },
+      {
+        description: "Spotify UK"
+      },
+      {
+        description: "APPLE.COM/BILL", // Apple Music
+        amount: -10.99
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.OnlineStorage,
+    matches: [
+      {
+        description: "GOOGLE Google Stor"
+      },
+      {
+        description: "APPLE.COM/BILL",
+        amount: -9.99
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Streaming,
+    matches: [
+      {
+        description: "APPLE.COM/BILL", // Disney+
+        amount: -7.99
+      },
+      {
+        description: "NETFLIX.COM"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Apps,
+    matches: [
+      {
+        description: "APPLE.COM/BILL"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Podcasts,
+    matches: [
+      {
+        description: "RELAY FM"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Storage,
+    matches: [
+      {
+        description: "BIG YELLOW"
+      },
+      {
+        description: "PAYMENTSHIELD LTD"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSubscriptionCategory.Misc,
+    matches: []
+  },
+];
+
+const spendingCategoryItems = [
+  {
+    category: SpendingInfoSpendingCategory.Travel,
+    matches: [
+      {
+        description: "BRIGHTON AND HOVE"
+      },
+      {
+        description: "TRAINLINE"
+      },
+      {
+        description: "TFL"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSpendingCategory.Food,
+    matches: [
+      {
+        description: "WM MORRISONS STORE"
+      },
+      {
+        description: "SAINSBURYS SPRMKT"
+      },
+      {
+        description: "ALDI STORES LTD"
+      },
+      {
+        description: "TESCO"
+      },
+      {
+        description: "CO OP GROUP FOOD"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSpendingCategory.EatingOut,
+    matches: [
+      {
+        description: "SQ *THE ROUNDHILL"
+      },
+      {
+        description: "SUMUP *LE BAOBAB"
+      },
+      {
+        description: "MOSHIMO"
+      },
+      {
+        description: "LOADING"
+      },
+      {
+        description: "Tonkotsu Ltd."
+      },
+      {
+        description: "Fil Fil Falafel Co"
+      },
+      {
+        description: "SUMUP *THE AVENUE"
+      },
+      {
+        description: "Bonsai Plant Kitch"
+      },
+      {
+        description: "HONEST BURGERS BRI"
+      },
+      {
+        description: "KOGI KOREAN CUISIN"
+      },
+      {
+        description: "GREGGS"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSpendingCategory.Takeaway,
+    matches: [
+      {
+        description: "DELIVEROO"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSpendingCategory.Entertainment,
+    matches: [
+      {
+        description: "WWW.KOMEDIA.CO.UK/"
+      },
+      {
+        description: "KOMEDIA"
+      },
+      {
+        description: "ODEON CINEMAS"
+      },
+      {
+        description: "PICTUREHOUSE"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSpendingCategory.Saving,
+    matches: [
+      {
+        description: "SAVE THE CHANGE"
+      }
+    ]
+  },
+  {
+    category: SpendingInfoSpendingCategory.Misc,
+    matches: []
+  }
+]
+
 class OpenBankingApiHelper {
 
-  private static findSpendingInfoCategory(transaction: Transaction, category: SpendingInfoCategory, itemList: SpendingInfoCategoryMatchesList): GetSpendingInfoCategoryProps | undefined {
+  private static matchTransaction(transaction: Transaction, itemList: SpendingInfoCategoryMatchesList): GetSpendingInfoMatchProps {
     for (var i = 0; i < itemList.length; i++) {
       for (var j = 0; j < itemList[i].matches.length; j++) {
+        var amount_match = false;
+        var account_match = false;
         if (itemList[i].matches[j].description == transaction.description){
-          if (itemList[i].matches[j].amount === undefined){
-            return {
-              spendingInfoCategory: category,
-              spendingInfoSubCategory: itemList[i].category
+          if (itemList[i].matches[j].amount){
+            if (itemList[i].matches[j].amount == transaction.amount){
+              amount_match = true;
+            } else {
+              continue;
             }
+          } else {
+            amount_match = true;
           }
-          if (itemList[i].matches[j].amount == transaction.amount){
-            return {
-              spendingInfoCategory: category,
-              spendingInfoSubCategory: itemList[i].category
+          if (itemList[i].matches[j].accountName){
+            if (itemList[i].matches[j].accountName == transaction.account.name){
+              account_match = true;
+            } else {
+              continue;
             }
+          } else {
+            account_match = true;
+          }
+          if (amount_match && account_match){
+            return {
+              found: true,
+              index: i
+            };
           }
         }
       }
     }
+    return {
+      found: false,
+      index: -1
+    };
+  }
 
+  private static findSpendingInfoCategory(transaction: Transaction, category: SpendingInfoCategory, itemList: SpendingInfoCategoryMatchesList): GetSpendingInfoCategoryProps | undefined {
+    var match = OpenBankingApiHelper.matchTransaction(transaction, itemList);
+    if (match.found){
+      return {
+        spendingInfoCategory: category,
+        spendingInfoSubCategory: itemList[match.index].category
+      }
+    }
     return undefined;
   }
 
   public static getSpendingInfoCategory(transaction: Transaction): GetSpendingInfoCategoryProps {
-    var itemList: SpendingInfoCategoryMatchesList;
-    if (transaction.amount > 0){
-      itemList = [
-        {
-          category: SpendingInfoIncomeCategory.Work,
-          matches: [
-            {
-              description: "PAXTON ACCESS LT",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoIncomeCategory.Family,
-          matches: [
-            {
-              description: "R KNIGHT",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoIncomeCategory.Misc,
-          matches: []
-        }
-      ];
+    if (OpenBankingApiHelper.matchTransaction(transaction, ignoreCategoryItems).found){
+      return {
+        spendingInfoCategory: SpendingInfoCategory.Ignore,
+        spendingInfoSubCategory: SpendingInfoIgnoreCategory.Ignore
+      }
+    }
 
+    if (transaction.amount > 0){
       var result = OpenBankingApiHelper.findSpendingInfoCategory(
         transaction,
         SpendingInfoCategory.Income,
-        itemList
+        incomeCategoryItems
       )
   
       if (result !== undefined){
@@ -450,309 +766,20 @@ class OpenBankingApiHelper {
     }
 
     if (transaction.amount < 0){
-
-      itemList = [
-        {
-          category: SpendingInfoSubscriptionCategory.Rent,
-          matches: [
-            {
-              description: "LINK UP LETTINGS",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Saving,
-          matches: [
-            {
-              description: "STANDARD SAVER",
-              amount: undefined
-            },
-            {
-              description: "SAVE THE CHANGE",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Charity,
-          matches: [
-            {
-              description: "CENTREPOINT SOHO F",
-              amount: undefined
-            },
-            {
-              description: "CANCER RESEARCH U",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.CouncilTax,
-          matches: [
-            {
-              description: "B&H BC",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Gaming,
-          matches: [
-            {
-              description: "Nintendo CD9292003",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Internet,
-          matches: [
-            {
-              description: "VIRGIN MEDIA PYMTS",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Mobile,
-          matches: [
-            {
-              description: "GIFFGAFF",
-              amount: undefined
-            },
-            {
-              description: "giffgaff",
-              amount: undefined
-            },
-            {
-              description: "APPLE.COM/BILL", // AppleCare+
-              amount: -9.49
-            },
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Music,
-          matches: [
-            {
-              description: "SPOTIFY",
-              amount: undefined
-            },
-            {
-              description: "Spotify UK",
-              amount: undefined
-            },
-            {
-              description: "APPLE.COM/BILL", // Apple Music
-              amount: -10.99
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.OnlineStorage,
-          matches: [
-            {
-              description: "GOOGLE Google Stor",
-              amount: undefined
-            },
-            {
-              description: "APPLE.COM/BILL",
-              amount: -9.99
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Streaming,
-          matches: [
-            {
-              description: "APPLE.COM/BILL", // Disney+
-              amount: -7.99
-            },
-            {
-              description: "NETFLIX.COM",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Apps,
-          matches: [
-            {
-              description: "APPLE.COM/BILL",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Podcasts,
-          matches: [
-            {
-              description: "RELAY FM",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Storage,
-          matches: [
-            {
-              description: "BIG YELLOW",
-              amount: undefined
-            },
-            {
-              description: "PAYMENTSHIELD LTD",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSubscriptionCategory.Misc,
-          matches: []
-        },
-      ];
-
       result = OpenBankingApiHelper.findSpendingInfoCategory(
         transaction,
         SpendingInfoCategory.Subscription,
-        itemList
+        subscriptionCategoryItems
       )
 
       if (result !== undefined){
         return result;
       }
 
-      itemList = [
-        {
-          category: SpendingInfoSpendingCategory.Travel,
-          matches: [
-            {
-              description: "BRIGHTON AND HOVE",
-              amount: undefined
-            },
-            {
-              description: "TRAINLINE",
-              amount: undefined
-            },
-            {
-              description: "TFL",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSpendingCategory.Food,
-          matches: [
-            {
-              description: "WM MORRISONS STORE",
-              amount: undefined
-            },
-            {
-              description: "SAINSBURYS SPRMKT",
-              amount: undefined
-            },
-            {
-              description: "ALDI STORES LTD",
-              amount: undefined
-            },
-            {
-              description: "TESCO",
-              amount: undefined
-            },
-            {
-              description: "CO OP GROUP FOOD",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSpendingCategory.EatingOut,
-          matches: [
-            {
-              description: "SQ *THE ROUNDHILL",
-              amount: undefined
-            },
-            {
-              description: "SUMUP *LE BAOBAB",
-              amount: undefined
-            },
-            {
-              description: "MOSHIMO",
-              amount: undefined
-            },
-            {
-              description: "LOADING",
-              amount: undefined
-            },
-            {
-              description: "Tonkotsu Ltd.",
-              amount: undefined
-            },
-            {
-              description: "Fil Fil Falafel Co",
-              amount: undefined
-            },
-            {
-              description: "SUMUP *THE AVENUE",
-              amount: undefined
-            },
-            {
-              description: "Bonsai Plant Kitch",
-              amount: undefined
-            },
-            {
-              description: "HONEST BURGERS BRI",
-              amount: undefined
-            },
-            {
-              description: "KOGI KOREAN CUISIN",
-              amount: undefined
-            },
-            {
-              description: "GREGGS",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSpendingCategory.Takeaway,
-          matches: [
-            {
-              description: "DELIVEROO",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSpendingCategory.Entertainment,
-          matches: [
-            {
-              description: "WWW.KOMEDIA.CO.UK/",
-              amount: undefined
-            },
-            {
-              description: "KOMEDIA",
-              amount: undefined
-            },
-            {
-              description: "ODEON CINEMAS",
-              amount: undefined
-            },
-            {
-              description: "PICTUREHOUSE",
-              amount: undefined
-            }
-          ]
-        },
-        {
-          category: SpendingInfoSpendingCategory.Misc,
-          matches: []
-        }
-      ];
-
       var result = OpenBankingApiHelper.findSpendingInfoCategory(
         transaction,
         SpendingInfoCategory.Spending,
-        itemList
+        spendingCategoryItems
       )
 
       if (result !== undefined){
@@ -1195,7 +1222,7 @@ class OpenBankingApiHelper {
     return balanceResponse;
   }
 
-  public static processTransactionsResponse(apiConfig: OpenBankingApiConfig, json: any): TransactionsResponse {
+  public static processTransactionsResponse(apiConfig: OpenBankingApiConfig, json: any, account: Account): TransactionsResponse {
     var transactionsResponse: TransactionsResponse = {
       transactions: undefined,
       error: undefined
@@ -1212,7 +1239,8 @@ class OpenBankingApiHelper {
               description: tinkTransaction.descriptions.original,
               transaction_type: tinkTransaction.types.type,
               amount: tinkTransaction.amount.value.unscaledValue,
-              currency: tinkTransaction.amount.currencyCode
+              currency: tinkTransaction.amount.currencyCode,
+              account: account
             }
             if (!transactionsResponse.transactions) {
               throw "Transactions array has not been initalised";
@@ -1237,7 +1265,8 @@ class OpenBankingApiHelper {
               description: result.description,
               transaction_type: result.transaction_type,
               amount: result.amount,
-              currency: result.currency
+              currency: result.currency,
+              account: account
             }
             if (!transactionsResponse.transactions) {
               throw "Transactions array has not been initalised";
@@ -1440,8 +1469,8 @@ class OpenBankingApiHelper {
     }
   }
 
-  public static async fetchTransactions(apiConfig: OpenBankingApiConfig, token: string, accountId: string): Promise<TransactionsFetchResponse> {
-    var transactionsUrl = OpenBankingApiHelper.getTransactionsUrl(apiConfig, accountId);
+  public static async fetchTransactions(apiConfig: OpenBankingApiConfig, token: string, account: Account): Promise<TransactionsFetchResponse> {
+    var transactionsUrl = OpenBankingApiHelper.getTransactionsUrl(apiConfig, account.id);
     var requestData = OpenBankingApiHelper.getAuthorisedRequestData(token);
     var transactionsFetchResponse: TransactionsFetchResponse = {
       status: 400,
@@ -1459,7 +1488,7 @@ class OpenBankingApiHelper {
           const resJson = JSON.parse(resText);
           try {
             const { transactions, error }: TransactionsResponse = OpenBankingApiHelper.processTransactionsResponse(
-              apiConfig, resJson);
+              apiConfig, resJson, account);
             if (response.ok) {
               if (transactions) {
                 transactionsFetchResponse.body.transactions = transactions;

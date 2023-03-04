@@ -70,7 +70,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         context.log("Fetching transactions for account: " + account.name);
 
         var transactionsFetch: TransactionsFetchResponse = await OpenBankingApiHelper.fetchTransactions(
-            openBankingApiConfig, token, accountId);
+            openBankingApiConfig, token, account);
         if (transactionsFetch.body.error) {
             var error = "Failed to fetch transactions: " + transactionsFetch.body.error;
             context.log(error);
@@ -89,8 +89,10 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
         context.log("Filtering transactions for account: " + account.name);
 
-        const fromUnix = new Date().setDate(new Date().getDate() - 30) / 1000;
-        const untilUnix = new Date().getTime() / 1000;
+        // const fromUnix = new Date().setDate(new Date().getDate() - 14) / 1000;
+        // const untilUnix = new Date().getTime() / 1000;
+        const fromUnix = new Date(2023, 0, 1).getTime() / 1000;
+        const untilUnix = new Date(2023, 1, 1).getTime() / 1000;
         var filteredTransactions = sortedTransactions.filter(transaction =>
             (new Date(transaction.timestamp).getTime() / 1000) >= fromUnix && 
             (new Date(transaction.timestamp).getTime() / 1000) <= untilUnix);

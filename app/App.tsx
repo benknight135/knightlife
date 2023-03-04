@@ -32,22 +32,15 @@ const useAppStartURL = () => {
 
 function getOpenBankingConfig(): OpenBankingApiConfig {
   var openBankingApiProivder: OpenBankingApiProivder = OpenBankingApiProivder.TrueLayer
-  var openBankingApiUseSandbox = false;
   if (env.OPEN_BANKING_PROVIDER == "truelayer") {
     openBankingApiProivder = OpenBankingApiProivder.TrueLayer
   }
   if (env.OPEN_BANKING_PROVIDER == "tink") {
     openBankingApiProivder = OpenBankingApiProivder.Tink
   }
-  if (env.OPEN_BANKING_USE_SANDBOX == true) {
-    openBankingApiUseSandbox = true;
-  }
-  if (env.OPEN_BANKING_USE_SANDBOX == false) {
-    openBankingApiUseSandbox = false;
-  }
   var openBankingApiConfig: OpenBankingApiConfig = {
     provider: openBankingApiProivder,
-    useSandbox: openBankingApiUseSandbox
+    useSandbox: env.OPEN_BANKING_USE_SANDBOX
   };
   return openBankingApiConfig
 }

@@ -79,16 +79,10 @@ const BankView = ({openBankingApiAuthCode, redirectUri, openBankingApiConfig}: B
             return <ActivityIndicator />
         } else {
             return (
-                <div>
-                    <BankAccountList
-                        authToken={authToken}
-                        openBankingApiConfig={openBankingApiConfig}
-                    />
-                    <SpendingView
-                        authToken={authToken}
-                        openBankingApiConfig={openBankingApiConfig}
-                    />
-                </div>
+                <SpendingView
+                    authToken={authToken}
+                    openBankingApiConfig={openBankingApiConfig}
+                />
             )
         }
     }
