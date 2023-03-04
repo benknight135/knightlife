@@ -7,13 +7,16 @@ type TransactionTableProps = {
 
 const TransactionTable = ({accountInfo}: TransactionTableProps) => {
     const tableId = accountInfo.account.id + "table";
-    var tableRows = accountInfo.transactions.map((transaction, index) => {
+    var tableRows = accountInfo.transactions.map((categorisedTransaction, index) => {
+        const transaction = categorisedTransaction.transaction;
         const tableRowId = index + tableId + transaction.id + transaction.timestamp + transaction.description;
         return (
             <tr key={tableRowId}>
                 <td>{transaction.description}</td>
                 <td>{transaction.amount}</td>
                 <td>{transaction.timestamp}</td>
+                <td>{categorisedTransaction.category}</td>
+                <td>{categorisedTransaction.subCategory}</td>
             </tr>
         )
     })
@@ -24,6 +27,8 @@ const TransactionTable = ({accountInfo}: TransactionTableProps) => {
                     <th>Description</th>
                     <th>Amount</th>
                     <th>Time</th>
+                    <th>Category</th>
+                    <th>Sub Category</th>
                 </tr>
             </thead>
             <tbody>

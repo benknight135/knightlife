@@ -286,9 +286,9 @@ type TransactionsFetchResponse = {
 }
 
 type SpendingAnalysis = {
-  income: Array<SpendingInfoItem>,
-  subscriptions: Array<SpendingInfoItem>,
-  spending: Array<SpendingInfoItem>,
+  income: any,
+  subscriptions: any,
+  spending: any,
   startBalance: number,
   endBalance: number,
   debit: number,
@@ -299,7 +299,7 @@ type SpendingAnalysis = {
 type AccountInfo = {
   account: Account,
   balance: Balance,
-  transactions: Transactions,
+  transactions: CategorisedTransactions,
   analysis: SpendingAnalysis
 }
 
@@ -377,6 +377,14 @@ type SpendingInfoCategoryMatches = {
 
 type SpendingInfoCategoryMatchesList = Array<SpendingInfoCategoryMatches>
 
+type CategorisedTransaction = {
+  transaction: Transaction,
+  category: SpendingInfoCategory,
+  subCategory: SpendingInfoSubCategory
+}
+
+type CategorisedTransactions = Array<CategorisedTransaction>
+
 class OpenBankingApiHelper {
 
   private static findSpendingInfoCategory(transaction: Transaction, category: SpendingInfoCategory, itemList: SpendingInfoCategoryMatchesList): GetSpendingInfoCategoryProps | undefined {
@@ -419,7 +427,7 @@ class OpenBankingApiHelper {
           category: SpendingInfoIncomeCategory.Family,
           matches: [
             {
-              description: "R Knight",
+              description: "R KNIGHT",
               amount: undefined
             }
           ]
@@ -514,6 +522,10 @@ class OpenBankingApiHelper {
               amount: undefined
             },
             {
+              description: "giffgaff",
+              amount: undefined
+            },
+            {
               description: "APPLE.COM/BILL", // AppleCare+
               amount: -9.49
             },
@@ -524,6 +536,10 @@ class OpenBankingApiHelper {
           matches: [
             {
               description: "SPOTIFY",
+              amount: undefined
+            },
+            {
+              description: "Spotify UK",
               amount: undefined
             },
             {
@@ -551,6 +567,10 @@ class OpenBankingApiHelper {
             {
               description: "APPLE.COM/BILL", // Disney+
               amount: -7.99
+            },
+            {
+              description: "NETFLIX.COM",
+              amount: undefined
             }
           ]
         },
@@ -631,7 +651,15 @@ class OpenBankingApiHelper {
               amount: undefined
             },
             {
+              description: "ALDI STORES LTD",
+              amount: undefined
+            },
+            {
               description: "TESCO",
+              amount: undefined
+            },
+            {
+              description: "CO OP GROUP FOOD",
               amount: undefined
             }
           ]
@@ -1478,6 +1506,8 @@ export { AccountsFetchResponse, TransactionsFetchResponse, BalanceFetchResponse 
 export { TokenResponse };
 export { SpendingInfoItem };
 export { SpendingInfoCategory, SpendingInfoSubCategory };
+export { SpendingInfoIncomeCategory, SpendingInfoSubscriptionCategory} ;
+export { SpendingInfoSpendingCategory };
 export { SpendingInfo, SpendingInfoResponse, SpendingAnalysis };
 export { Account, AccountsInfo, AccountInfo };
 export { Transaction };

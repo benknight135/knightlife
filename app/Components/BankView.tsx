@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
-import { env } from '../Utils/env';
+import { env } from '../Utils/Env';
 import { OpenBankingApiConfig } from '../Shared/Banking';
 import BankConnectButton from './BankConnectButton';
 import BankAccountList from './BankAccountList';

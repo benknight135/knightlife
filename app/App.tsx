@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Linking, ActivityIndicator } from 'react-native';
-import { env } from './Utils/env';
+import styles from './Utils/Styles';
+import { env } from './Utils/Env';
 import BankView from './Components/BankView';
 import { OpenBankingApiConfig, OpenBankingApiProivder } from './Shared/Banking';
-import { OpenBankingApiHelper } from './Shared/Banking';
 
 type APIVersion = {
   version: string;
@@ -33,16 +33,16 @@ const useAppStartURL = () => {
 function getOpenBankingConfig(): OpenBankingApiConfig {
   var openBankingApiProivder: OpenBankingApiProivder = OpenBankingApiProivder.TrueLayer
   var openBankingApiUseSandbox = false;
-  if (env.OPEN_BANKING_PROVIDER == "truelayer"){
+  if (env.OPEN_BANKING_PROVIDER == "truelayer") {
     openBankingApiProivder = OpenBankingApiProivder.TrueLayer
   }
-  if (env.OPEN_BANKING_PROVIDER == "tink"){
+  if (env.OPEN_BANKING_PROVIDER == "tink") {
     openBankingApiProivder = OpenBankingApiProivder.Tink
   }
-  if (env.OPEN_BANKING_USE_SANDBOX == true){
+  if (env.OPEN_BANKING_USE_SANDBOX == true) {
     openBankingApiUseSandbox = true;
   }
-  if (env.OPEN_BANKING_USE_SANDBOX == false){
+  if (env.OPEN_BANKING_USE_SANDBOX == false) {
     openBankingApiUseSandbox = false;
   }
   var openBankingApiConfig: OpenBankingApiConfig = {
@@ -53,8 +53,8 @@ function getOpenBankingConfig(): OpenBankingApiConfig {
 }
 
 function getOpenBankingApiAuthCodeFromURL(url: URL | null): string | null {
-  if (url == null){
-      return null;
+  if (url == null) {
+    return null;
   }
   // only process code if correct callback is in url e.g. https://X.X.X/callback
   // if (url.pathname != "/callback"){
@@ -111,11 +111,9 @@ export default function App() {
 
   var openBankingApiAuthCode: string | null = getOpenBankingApiAuthCodeFromURL(appStartUrl);
   var redirectUri: string | null = null;
-  if (appStartUrl != null){
+  if (appStartUrl != null) {
     redirectUri = new URL("/callback", appStartUrl.origin).toString();
   }
-
-  console.log(redirectUri);
 
   return (
     <View style={styles.container}>
@@ -137,12 +135,3 @@ export default function App() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  }
-});

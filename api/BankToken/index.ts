@@ -41,6 +41,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     context.res = await OpenBankingApiHelper.fetchToken(
         openBankingApiConfig, code, redirectUri);
 
+    context.log(context.res.body.access_token);
+
     // if failed with 400 probably a refresh while debugging so try to use the developer access token
     if (context.res.status == 400){
         var dev_access_token = process.env.OPEN_BANKING_DEV_ACCESS_TOKEN || undefined;

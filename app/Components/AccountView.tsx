@@ -1,7 +1,8 @@
 import { Text } from 'react-native';
-import { AccountInfo } from '../Shared/Banking';
+import { AccountInfo, SpendingInfoIncomeCategory, SpendingInfoSpendingCategory, SpendingInfoSubscriptionCategory } from '../Shared/Banking';
 import SpendingAnalysisView from './SpendingAnalysisView';
-import SpendingTable from './SpendingTable';
+import TransactionTable from './TransactionTable';
+import PieChart from './PieChart';
 
 type AccountViewProps = {
     accountInfo: AccountInfo;
@@ -9,6 +10,20 @@ type AccountViewProps = {
 };
 
 const AccountView = ({ accountInfo }: AccountViewProps) => {
+    const pieChartRadius = 70;
+    var values = []
+    if (accountInfo.account.name == "Automatic"){
+        for (var subCategory in SpendingInfoSubscriptionCategory) {
+            var val = accountInfo.analysis.subscriptions[subCategory];
+            values.push(val);
+        }
+    }
+    if (accountInfo.account.name == "Spending"){
+        for (var subCategory in SpendingInfoSpendingCategory) {
+            var val = accountInfo.analysis.spending[subCategory];
+            values.push(val);
+        }
+    }
     return (
         <div>
             <Text>
@@ -17,7 +32,11 @@ const AccountView = ({ accountInfo }: AccountViewProps) => {
             <SpendingAnalysisView
                 accountInfo={accountInfo}
             />
-            <SpendingTable
+            <PieChart
+                values={values}
+                radius={pieChartRadius}
+            />
+            <TransactionTable
                 accountInfo={accountInfo}
             />
         </div>

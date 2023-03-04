@@ -4,8 +4,9 @@ import { AccountsFetchResponse, TransactionsFetchResponse } from "../Shared/Bank
 import { BalanceFetchResponse } from "../Shared/Banking";
 import { Account, AccountsInfo } from "../Shared/Banking";
 import { SpendingAnalysis } from "../Shared/Banking";
-import { SpendingInfoItem } from "../Shared/Banking";
 import { SpendingInfoCategory } from "../Shared/Banking";
+import { SpendingInfoIncomeCategory, SpendingInfoSubscriptionCategory } from "../Shared/Banking";
+import { SpendingInfoSpendingCategory } from "../Shared/Banking";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a spending info request.');
@@ -88,22 +89,31 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
         context.log("Filtering transactions for account: " + account.name);
 
-        const fromUnix = new Date().setDate(new Date().getDate() - 14) / 1000;
+        const fromUnix = new Date().setDate(new Date().getDate() - 30) / 1000;
         const untilUnix = new Date().getTime() / 1000;
-        let filteredTransactions = sortedTransactions.filter(transaction =>
+        var filteredTransactions = sortedTransactions.filter(transaction =>
             (new Date(transaction.timestamp).getTime() / 1000) >= fromUnix && 
             (new Date(transaction.timestamp).getTime() / 1000) <= untilUnix);
 
         context.log("Analysing transactions for account: " + account.name);
 
-        var income: Array<SpendingInfoItem> = []
-        var subscriptions: Array<SpendingInfoItem> = []
-        var spending: Array<SpendingInfoItem> = []
-
+        var income = {}
+        var subscriptions = {}
+        var spending = {}
+        for (var subCategory in SpendingInfoIncomeCategory) {
+            income[subCategory] = 0;
+        }
+        for (var subCategory in SpendingInfoSubscriptionCategory) {
+            subscriptions[subCategory] = 0;
+        }
+        for (var subCategory in SpendingInfoSpendingCategory) {
+            spending[subCategory] = 0;
+        }
         var endBalance = balanceFetch.body.balance.current;
         var startBalance: number = endBalance;
         var debit: number = 0;
         var credit: number = 0;
+        var categorisedTransactions = [];
         for (var j = 0; j < filteredTransactions.length; j++) {
             var transaction = filteredTransactions[j];
             startBalance -= transaction.amount;
@@ -115,32 +125,21 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             }
             var categoryDetails = OpenBankingApiHelper.getSpendingInfoCategory(transaction);
             if (categoryDetails.spendingInfoCategory == SpendingInfoCategory.Income){
-                income.push(
-                    {
-                        name: transaction.description,
-                        category: categoryDetails.spendingInfoSubCategory,
-                        amount: transaction.amount
-                    }
-                )
+                income[categoryDetails.spendingInfoSubCategory] += transaction.amount;
             }
             if (categoryDetails.spendingInfoCategory == SpendingInfoCategory.Subscription){
-                subscriptions.push(
-                    {
-                        name: transaction.description,
-                        category: categoryDetails.spendingInfoSubCategory,
-                        amount: transaction.amount
-                    }
-                )
+                subscriptions[categoryDetails.spendingInfoSubCategory] += transaction.amount;
             }
             if (categoryDetails.spendingInfoCategory == SpendingInfoCategory.Spending){
-                spending.push(
-                    {
-                        name: transaction.description,
-                        category: categoryDetails.spendingInfoSubCategory,
-                        amount: transaction.amount
-                    }
-                )
+                spending[categoryDetails.spendingInfoSubCategory] += transaction.amount;
             }
+            categorisedTransactions.push(
+                {
+                    transaction: transaction,
+                    category: categoryDetails.spendingInfoCategory,
+                    subCategory: categoryDetails.spendingInfoSubCategory
+                }
+            );
         }
 
         var analysis: SpendingAnalysis = {
@@ -158,7 +157,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         accountsInfo.push({
             account: account,
             balance: balanceFetch.body.balance,
-            transactions: filteredTransactions,
+            transactions: categorisedTransactions,
             analysis: analysis
         })
     }
