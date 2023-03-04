@@ -4,6 +4,8 @@ import { AccountsFetchResponse, TransactionsFetchResponse } from "../Shared/Bank
 import { BalanceFetchResponse } from "../Shared/Banking";
 import { Account, AccountsInfo } from "../Shared/Banking";
 import { SpendingAnalysis } from "../Shared/Banking";
+import { SpendingInfoItem } from "../Shared/Banking";
+import { SpendingInfoCategory } from "../Shared/Banking";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a spending info request.');
@@ -43,10 +45,14 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         return;
     }
 
+    context.log("Processing accounts...");
+
     var accountsInfo: AccountsInfo = []
     for (var i = 0; i < accountsFetch.body.accounts.length; i++) {
         var account: Account = accountsFetch.body.accounts[i];
         var accountId: string = account.id;
+
+        context.log("Fetching balance for account: " + account.name);
 
         var balanceFetch: BalanceFetchResponse = await OpenBankingApiHelper.fetchBalance(
             openBankingApiConfig, token, accountId);
@@ -60,6 +66,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             return;
         }
 
+        context.log("Fetching transactions for account: " + account.name);
+
         var transactionsFetch: TransactionsFetchResponse = await OpenBankingApiHelper.fetchTransactions(
             openBankingApiConfig, token, accountId);
         if (transactionsFetch.body.error) {
@@ -72,15 +80,25 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             return;
         }
 
+        context.log("Sorting transactions for account: " + account.name);
+
         var sortedTransactions = [...transactionsFetch.body.transactions].sort(function(a, b){
             return Date.parse(b.timestamp) - Date.parse(a.timestamp);
         });
+
+        context.log("Filtering transactions for account: " + account.name);
 
         const fromUnix = new Date().setDate(new Date().getDate() - 14) / 1000;
         const untilUnix = new Date().getTime() / 1000;
         let filteredTransactions = sortedTransactions.filter(transaction =>
             (new Date(transaction.timestamp).getTime() / 1000) >= fromUnix && 
             (new Date(transaction.timestamp).getTime() / 1000) <= untilUnix);
+
+        context.log("Analysing transactions for account: " + account.name);
+
+        var income: Array<SpendingInfoItem> = []
+        var subscriptions: Array<SpendingInfoItem> = []
+        var spending: Array<SpendingInfoItem> = []
 
         var endBalance = balanceFetch.body.balance.current;
         var startBalance: number = endBalance;
@@ -95,9 +113,40 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             if (transaction.amount > 0){
                 credit += transaction.amount;
             }
+            var categoryDetails = OpenBankingApiHelper.getSpendingInfoCategory(transaction);
+            if (categoryDetails.spendingInfoCategory == SpendingInfoCategory.Income){
+                income.push(
+                    {
+                        name: transaction.description,
+                        category: categoryDetails.spendingInfoSubCategory,
+                        amount: transaction.amount
+                    }
+                )
+            }
+            if (categoryDetails.spendingInfoCategory == SpendingInfoCategory.Subscription){
+                subscriptions.push(
+                    {
+                        name: transaction.description,
+                        category: categoryDetails.spendingInfoSubCategory,
+                        amount: transaction.amount
+                    }
+                )
+            }
+            if (categoryDetails.spendingInfoCategory == SpendingInfoCategory.Spending){
+                spending.push(
+                    {
+                        name: transaction.description,
+                        category: categoryDetails.spendingInfoSubCategory,
+                        amount: transaction.amount
+                    }
+                )
+            }
         }
 
         var analysis: SpendingAnalysis = {
+            income: income,
+            subscriptions: subscriptions,
+            spending: spending,
             startBalance: startBalance,
             endBalance: endBalance,
             debit: debit,
@@ -116,7 +165,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
     var spendingInfo: SpendingInfoResponse = {
         spendingInfo: {
-            accountsInfo: accountsInfo
+            accountsInfo: accountsInfo,
         }
     }
 

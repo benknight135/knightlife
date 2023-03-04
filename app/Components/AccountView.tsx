@@ -1,7 +1,7 @@
 import { Text } from 'react-native';
 import { AccountInfo } from '../Shared/Banking';
 import SpendingAnalysisView from './SpendingAnalysisView';
-import TransactionTable from './TransactionTable';
+import SpendingTable from './SpendingTable';
 
 type AccountViewProps = {
     accountInfo: AccountInfo;
@@ -17,7 +17,7 @@ const AccountView = ({ accountInfo }: AccountViewProps) => {
             <SpendingAnalysisView
                 accountInfo={accountInfo}
             />
-            <TransactionTable
+            <SpendingTable
                 accountInfo={accountInfo}
             />
         </div>
