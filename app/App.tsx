@@ -110,12 +110,6 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Knight Life</Text>
-      {isLoadingAPIVersion ? (
-        <ActivityIndicator />
-      ) : (
-        <Text>{apiVersion.version}</Text>
-      )}
       {isLoadingAppStartURL ? (
         <ActivityIndicator />
       ) : (
@@ -125,6 +119,17 @@ export default function App() {
           openBankingApiConfig={openBankingApiConfig}
         />
       )}
+      <View style={styles.card}>
+        <Text style={styles.baseText}>Knight Life</Text>
+        <Text style={styles.baseText}>|</Text>
+        <Text style={styles.baseText}>Created by Ben Knight</Text>
+        <Text style={styles.baseText}>|</Text>
+        {isLoadingAPIVersion ? (
+          <ActivityIndicator />
+        ) : (
+          <Text style={styles.baseText}>v{apiVersion.version}</Text>
+        )}
+      </View>
     </View>
   );
 }

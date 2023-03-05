@@ -1,8 +1,8 @@
-import { Text } from 'react-native';
-import { AccountInfo, SpendingInfoIncomeCategory, SpendingInfoSpendingCategory, SpendingInfoSubscriptionCategory } from '../Shared/Banking';
+import { View, Text } from 'react-native';
+import styles from '../Utils/Styles';
+import { AccountInfo } from '../Shared/Banking';
 import SpendingAnalysisView from './SpendingAnalysisView';
 import TransactionTable from './TransactionTable';
-import PieChart from './PieChart';
 
 type AccountViewProps = {
     accountInfo: AccountInfo;
@@ -11,8 +11,8 @@ type AccountViewProps = {
 
 const AccountView = ({ accountInfo }: AccountViewProps) => {
     return (
-        <div>
-            <Text>
+        <View style={styles.accountView}>
+            <Text style={styles.baseText}>
                 {accountInfo.account.name}
             </Text>
             <SpendingAnalysisView
@@ -21,7 +21,7 @@ const AccountView = ({ accountInfo }: AccountViewProps) => {
             <TransactionTable
                 accountInfo={accountInfo}
             />
-        </div>
+        </View>
     )
 }
 

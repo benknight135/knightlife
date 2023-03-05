@@ -290,6 +290,7 @@ type SpendingAnalysis = {
   income: any,
   subscriptions: any,
   spending: any,
+  saving: any,
   startBalance: number,
   endBalance: number,
   debit: number,
@@ -310,6 +311,7 @@ enum SpendingInfoCategory {
   Income = "Income",
   Subscription = "Subscription",
   Spending = "Spending",
+  Saving = "Saving",
   Ignore = "Ignore"
 }
 
@@ -325,7 +327,6 @@ enum SpendingInfoIncomeCategory {
 
 enum SpendingInfoSubscriptionCategory {
   Rent = "Rent",
-  Saving = "Saving",
   CouncilTax = "Council Tax",
   Internet = "Internet",
   Storage = "Storage",
@@ -346,6 +347,10 @@ enum SpendingInfoSpendingCategory {
   Takeaway = "Takeaway",
   EatingOut = "Eating Out",
   Entertainment = "Entertainment",
+  Misc = "Misc"
+}
+
+enum SpendingInfoSavingCategory {
   Saving = "Saving",
   Misc = "Misc"
 }
@@ -365,7 +370,7 @@ type SpendingInfoResponse = {
   error?: string
 }
 
-type SpendingInfoSubCategory = SpendingInfoIgnoreCategory | SpendingInfoIncomeCategory | SpendingInfoSubscriptionCategory | SpendingInfoSpendingCategory;
+type SpendingInfoSubCategory = SpendingInfoIgnoreCategory | SpendingInfoIncomeCategory | SpendingInfoSubscriptionCategory | SpendingInfoSpendingCategory | SpendingInfoSavingCategory;
 
 type GetSpendingInfoCategoryProps = {
   spendingInfoCategory: SpendingInfoCategory,
@@ -380,7 +385,7 @@ type GetSpendingInfoMatchProps = {
 type SpendingInfoMatch = {
   description: string,
   amount?: number,
-  accountName?: string
+  accountType?: string
 }
 
 type SpendingInfoCategoryMatches = {
@@ -403,17 +408,34 @@ const ignoreCategoryItems = [
     category: SpendingInfoIgnoreCategory.Ignore,
     matches: [
       {
-        description: "B KNIGHT"
+        description: "B KNIGHT",
+        accountType: "TRANSACTION"
+      },
+      {
+        description: "B KNIGHT",
+        accountType: "TRANSACTION",
       },
       {
         description: "SPENDING"
       },
       {
         description: "STANDARD SAVER"
-      },
+      }
+    ]
+  }
+]
+
+const savingCategoryItems = [
+  {
+    category: SpendingInfoSavingCategory.Saving,
+    matches: [
       {
         description: "SAVE THE CHANGE",
-        accountName: "Savings"
+        accountType: "SAVINGS"
+      },
+      {
+        description: "B KNIGHT",
+        accountType: "SAVINGS"
       }
     ]
   }
@@ -448,14 +470,6 @@ const subscriptionCategoryItems = [
     matches: [
       {
         description: "LINK UP LETTINGS"
-      }
-    ]
-  },
-  {
-    category: SpendingInfoSubscriptionCategory.Saving,
-    matches: [
-      {
-        description: "STANDARD SAVER"
       }
     ]
   },
@@ -680,14 +694,6 @@ const spendingCategoryItems = [
     ]
   },
   {
-    category: SpendingInfoSpendingCategory.Saving,
-    matches: [
-      {
-        description: "SAVE THE CHANGE"
-      }
-    ]
-  },
-  {
     category: SpendingInfoSpendingCategory.Misc,
     matches: []
   }
@@ -698,28 +704,28 @@ class OpenBankingApiHelper {
   private static matchTransaction(transaction: Transaction, itemList: SpendingInfoCategoryMatchesList): GetSpendingInfoMatchProps {
     for (var i = 0; i < itemList.length; i++) {
       for (var j = 0; j < itemList[i].matches.length; j++) {
-        var amount_match = false;
-        var account_match = false;
+        var amountMatch = false;
+        var accountTypeMatch = false;
         if (itemList[i].matches[j].description == transaction.description){
           if (itemList[i].matches[j].amount){
             if (itemList[i].matches[j].amount == transaction.amount){
-              amount_match = true;
+              amountMatch = true;
             } else {
               continue;
             }
           } else {
-            amount_match = true;
+            amountMatch = true;
           }
-          if (itemList[i].matches[j].accountName){
-            if (itemList[i].matches[j].accountName == transaction.account.name){
-              account_match = true;
+          if (itemList[i].matches[j].accountType){
+            if (itemList[i].matches[j].accountType == transaction.account.type){
+              accountTypeMatch = true;
             } else {
               continue;
             }
           } else {
-            account_match = true;
+            accountTypeMatch = true;
           }
-          if (amount_match && account_match){
+          if (amountMatch && accountTypeMatch){
             return {
               found: true,
               index: i
@@ -751,6 +757,16 @@ class OpenBankingApiHelper {
         spendingInfoCategory: SpendingInfoCategory.Ignore,
         spendingInfoSubCategory: SpendingInfoIgnoreCategory.Ignore
       }
+    }
+
+    var result = OpenBankingApiHelper.findSpendingInfoCategory(
+      transaction,
+      SpendingInfoCategory.Saving,
+      savingCategoryItems
+    )
+
+    if (result !== undefined){
+      return result;
     }
 
     if (transaction.amount > 0){
@@ -1536,7 +1552,7 @@ export { TokenResponse };
 export { SpendingInfoItem };
 export { SpendingInfoCategory, SpendingInfoSubCategory };
 export { SpendingInfoIncomeCategory, SpendingInfoSubscriptionCategory} ;
-export { SpendingInfoSpendingCategory };
+export { SpendingInfoSpendingCategory, SpendingInfoSavingCategory };
 export { SpendingInfo, SpendingInfoResponse, SpendingAnalysis };
 export { Account, AccountsInfo, AccountInfo };
 export { Transaction };

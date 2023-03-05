@@ -2,16 +2,20 @@ enum CurrencyCode {
     GDP = "GDP"
 }
 
-const NumberToString = (num: number, dp: number): string => {
+const numberToString = (num: number, dp: number): string => {
     return (Math.round(num * 100) / 100).toFixed(dp);
 }
 
-const NumberToCurrency = (num: number, currencyCode: CurrencyCode): string => {
-    var value = NumberToString(num,2);
+const numberToCurrency = (num: number, currencyCode: CurrencyCode): string => {
+    var absNum = Math.abs(num);
+    var value = numberToString(absNum,2);
     var currency: string;
     switch(currencyCode){
         case CurrencyCode.GDP:
             currency = "£" + value;
+            if (num < 0){
+                currency = "-" + currency;
+            }
             break;
         default:
             throw new Error("Unsupported currency code");
@@ -19,5 +23,5 @@ const NumberToCurrency = (num: number, currencyCode: CurrencyCode): string => {
     return currency;
 }
 
-export { NumberToString };
-export { CurrencyCode, NumberToCurrency };
+export { numberToString };
+export { CurrencyCode, numberToCurrency };

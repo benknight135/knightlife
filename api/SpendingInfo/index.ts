@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
-import { OpenBankingApiConfig, OpenBankingApiHelper, SpendingInfoResponse } from "../Shared/Banking";
+import { OpenBankingApiConfig, OpenBankingApiHelper, SpendingInfoResponse, SpendingInfoSavingCategory } from "../Shared/Banking";
 import { AccountsFetchResponse, TransactionsFetchResponse } from "../Shared/Banking";
 import { BalanceFetchResponse } from "../Shared/Banking";
 import { Account, AccountsInfo } from "../Shared/Banking";
@@ -102,6 +102,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         var income = {}
         var subscriptions = {}
         var spending = {}
+        var saving = {}
         for (var subCategory in SpendingInfoIncomeCategory) {
             income[subCategory] = 0;
         }
@@ -110,6 +111,9 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         }
         for (var subCategory in SpendingInfoSpendingCategory) {
             spending[subCategory] = 0;
+        }
+        for (var subCategory in SpendingInfoSavingCategory) {
+            saving[subCategory] = 0;
         }
         var endBalance = balanceFetch.body.balance.current;
         var startBalance: number = endBalance;
@@ -135,6 +139,9 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             if (categoryDetails.spendingInfoCategory == SpendingInfoCategory.Spending){
                 spending[categoryDetails.spendingInfoSubCategory] += transaction.amount;
             }
+            if (categoryDetails.spendingInfoCategory == SpendingInfoCategory.Saving){
+                saving[categoryDetails.spendingInfoSubCategory] += transaction.amount;
+            }
             categorisedTransactions.push(
                 {
                     transaction: transaction,
@@ -148,6 +155,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             income: income,
             subscriptions: subscriptions,
             spending: spending,
+            saving: saving,
             startBalance: startBalance,
             endBalance: endBalance,
             debit: debit,

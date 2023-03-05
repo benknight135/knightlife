@@ -1,4 +1,5 @@
-import { NumberToCurrency, CurrencyCode } from '../Utils/Convert';
+import { numberToCurrency, CurrencyCode } from '../Utils/Convert';
+import styles from '../Utils/Styles';
 import { AccountInfo } from '../Shared/Banking';
 
 type SpendingAnalysisViewProps = {
@@ -8,7 +9,7 @@ type SpendingAnalysisViewProps = {
 const SpendingAnalysisView = ({ accountInfo }: SpendingAnalysisViewProps) => {
     const currencyCode = CurrencyCode.GDP;
     return (
-        <table>
+        <table style={styles.baseText}>
             <thead>
                 <tr>
                     <th>Start</th>
@@ -20,11 +21,11 @@ const SpendingAnalysisView = ({ accountInfo }: SpendingAnalysisViewProps) => {
             </thead>
             <tbody>
                 <tr>
-                    <td>{NumberToCurrency(accountInfo.analysis.startBalance, currencyCode)}</td>
-                    <td>{NumberToCurrency(accountInfo.analysis.debit, currencyCode)}</td>
-                    <td>{NumberToCurrency(accountInfo.analysis.credit, currencyCode)}</td>
-                    <td>{NumberToCurrency(accountInfo.analysis.net, currencyCode)}</td>
-                    <td>{NumberToCurrency(accountInfo.analysis.endBalance, currencyCode)}</td>
+                    <td>{numberToCurrency(accountInfo.analysis.startBalance, currencyCode)}</td>
+                    <td>{numberToCurrency(accountInfo.analysis.debit, currencyCode)}</td>
+                    <td>{numberToCurrency(accountInfo.analysis.credit, currencyCode)}</td>
+                    <td>{numberToCurrency(accountInfo.analysis.net, currencyCode)}</td>
+                    <td>{numberToCurrency(accountInfo.analysis.endBalance, currencyCode)}</td>
                 </tr>
             </tbody>
         </table>

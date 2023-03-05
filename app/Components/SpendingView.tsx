@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { Text, View, ActivityIndicator } from 'react-native';
 import { env } from '../Utils/Env';
 import styles from '../Utils/Styles';
-import { OpenBankingApiConfig, SpendingInfoIncomeCategory, SpendingInfoSpendingCategory, SpendingInfoSubscriptionCategory } from '../Shared/Banking';
+import { OpenBankingApiConfig, SpendingInfoSubCategory } from '../Shared/Banking';
+import { SpendingInfoIncomeCategory, SpendingInfoSavingCategory } from '../Shared/Banking';
+import { SpendingInfoSpendingCategory, SpendingInfoSubscriptionCategory } from '../Shared/Banking';
 import { SpendingInfoResponse, SpendingInfo } from '../Shared/Banking';
-import PieChart from './PieChart';
-import TransactionTable from './TransactionTable';
+import PieChart, { PieChartSegmentData } from './PieChart';
 import AccountView from './AccountView';
 
 type SpendingViewProps = {
@@ -81,6 +82,8 @@ const SpendingView = ({ openBankingApiConfig, authToken }: SpendingViewProps) =>
             var income: any = {}
             var subscriptions: any = {}
             var spending: any = {}
+            var saving: any = {}
+            
             for (var subCategory in SpendingInfoIncomeCategory) {
                 income[subCategory] = 0;
             }
@@ -90,30 +93,55 @@ const SpendingView = ({ openBankingApiConfig, authToken }: SpendingViewProps) =>
             for (var subCategory in SpendingInfoSpendingCategory) {
                 spending[subCategory] = 0;
             }
+            for (var subCategory in SpendingInfoSavingCategory) {
+                saving[subCategory] = 0;
+            }
             for (var i = 0; i < spendingInfo.accountsInfo.length; i++) {
                 for (var category in SpendingInfoSubscriptionCategory){
-                    subscriptions[category] += spendingInfo.accountsInfo[i].analysis.subscriptions[category];
+                    subscriptions[category] += -spendingInfo.accountsInfo[i].analysis.subscriptions[category];
                 }
                 for (var category in SpendingInfoSpendingCategory){
-                    spending[category] += spendingInfo.accountsInfo[i].analysis.spending[category];
+                    spending[category] += -spendingInfo.accountsInfo[i].analysis.spending[category];
                 }
                 for (var category in SpendingInfoIncomeCategory){
                     income[category] += spendingInfo.accountsInfo[i].analysis.income[category];
                 }
+                for (var category in SpendingInfoSavingCategory){
+                    saving[category] += spendingInfo.accountsInfo[i].analysis.saving[category];
+                }
             }
-
-            var subscriptionValues: Array<number> = [];
-            var spendingValues: Array<number> = [];
-            var incomeValues: Array<number> = [];
+            
+            var subscriptionDatas: Array<PieChartSegmentData> = [];
+            var spendingDatas: Array<PieChartSegmentData> = [];
+            var incomeDatas: Array<PieChartSegmentData> = [];
+            var savingDatas: Array<PieChartSegmentData> = [];
             for (var category in SpendingInfoSubscriptionCategory){
-                console.log(subscriptions[category]);
-                subscriptionValues.push(subscriptions[category]);
+                subscriptionDatas.push(
+                    {
+                        amount: subscriptions[category]
+                    }
+                );
             }
             for (var category in SpendingInfoSpendingCategory){
-                spendingValues.push(spending[category]);
+                spendingDatas.push(
+                    {
+                        amount: spending[category]
+                    }
+                );
             }
             for (var category in SpendingInfoIncomeCategory){
-                incomeValues.push(income[category]);
+                incomeDatas.push(
+                    {
+                        amount: income[category]
+                    }
+                );
+            }
+            for (var category in SpendingInfoSavingCategory){
+                savingDatas.push(
+                    {
+                        amount: saving[category]
+                    }
+                );
             }
             
             const accountViews = spendingInfo.accountsInfo.map((accountInfo, index) => (
@@ -128,19 +156,29 @@ const SpendingView = ({ openBankingApiConfig, authToken }: SpendingViewProps) =>
                 <View style={styles.container}>
                     <View style={styles.card}>
                         <PieChart
-                            values={incomeValues}
+                            segmentData={incomeDatas}
                             radius={pieChartRadius}
+                            title={"Income"}
                         />
                         <PieChart
-                            values={subscriptionValues}
+                            segmentData={subscriptionDatas}
                             radius={pieChartRadius}
+                            title={"Subscriptions"}
                         />
                         <PieChart
-                            values={spendingValues}
+                            segmentData={spendingDatas}
                             radius={pieChartRadius}
+                            title={"Spending"}
+                        />
+                        <PieChart
+                            segmentData={savingDatas}
+                            radius={pieChartRadius}
+                            title={"Saving"}
                         />
                     </View>
-                    {accountViews}
+                    <View style={styles.card}>
+                        {accountViews}
+                    </View>
                 </View>
             )
         }

@@ -1,34 +1,54 @@
 import { AccountInfo } from '../Shared/Banking';
 import { Text } from 'react-native';
+import styles from '../Utils/Styles';
+import { CurrencyCode, numberToCurrency } from '../Utils/Convert';
 
 type TransactionTableProps = {
     accountInfo: AccountInfo;
 };
 
-const TransactionTable = ({accountInfo}: TransactionTableProps) => {
+function truncateText(text: string, maxLength: number): string {
+    var truncText = text;
+    if (text.length > maxLength - 3) {
+        truncText = truncText.slice(0, maxLength - 3) + "...";
+    }
+    return truncText;
+}
+
+const TransactionTable = ({ accountInfo }: TransactionTableProps) => {
     const tableId = accountInfo.account.id + "table";
-    var tableRows = accountInfo.transactions.map((categorisedTransaction, index) => {
+    var transactions = []
+    const maxTransactions = 30;
+    for (var i = 0; i < accountInfo.transactions.length; i++) {
+        if (i > maxTransactions) {
+            break;
+        }
+        transactions.push(accountInfo.transactions[i]);
+    }
+    var tableRows = transactions.map((categorisedTransaction, index) => {
         const transaction = categorisedTransaction.transaction;
         const tableRowId = index + tableId + transaction.id + transaction.timestamp + transaction.description;
+        const transactionDate = new Date(Date.parse(transaction.timestamp)).toLocaleDateString();
+        const textLength = 16;
         return (
             <tr key={tableRowId}>
-                <td>{transaction.description}</td>
-                <td>{transaction.amount}</td>
-                <td>{transaction.timestamp}</td>
-                <td>{categorisedTransaction.category}</td>
-                <td>{categorisedTransaction.subCategory}</td>
+                <td>{truncateText(transaction.description, textLength)}</td>
+                <td>{numberToCurrency(transaction.amount, CurrencyCode.GDP)}</td>
+                <td>{transactionDate}</td>
+                {/* <td>{truncateText(categorisedTransaction.category, textLength)}</td>
+                <td>{truncateText(categorisedTransaction.subCategory, textLength)}</td> */}
             </tr>
         )
     })
     var table = (
-        <table>
+        <table style={styles.baseText}>
             <thead>
                 <tr>
                     <th>Description</th>
                     <th>Amount</th>
                     <th>Time</th>
-                    <th>Category</th>
-                    <th>Sub Category</th>
+                    {/* <th>Category</th>
+                    <th>Sub Category</th> */}
                 </tr>
             </thead>
             <tbody>
@@ -37,7 +57,7 @@ const TransactionTable = ({accountInfo}: TransactionTableProps) => {
         </table>
     )
     return (
-        accountInfo.transactions.length ? table : <Text>No Data</Text>
+        accountInfo.transactions.length ? table : <Text style={styles.baseText}>No Data</Text>
     )
 }
 
