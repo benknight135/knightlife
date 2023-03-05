@@ -183,7 +183,7 @@ const SpendingView: React.FC<SpendingViewProps> = ({openBankingApiConfig, authTo
                             title={"Saving"}
                         />
                     </View>
-                    <View style={styles.card}>
+                    <View style={styles.accountsCard}>
                         {accountViews}
                     </View>
                 </View>

@@ -168,7 +168,7 @@ const SpendingPieChart: React.FC<Props> = ({segmentData, radius, redNegative, ti
                         }
                     </G>
                 </Svg>
-                <Text style={styles.pieChartLabel}>
+                <Text style={styles.pieChartCentreLabel}>
                     {numberToCurrency(total, currencyCode)}
                 </Text>
             </View>

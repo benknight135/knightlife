@@ -11,7 +11,7 @@ type AccountViewProps = {
 const AccountView: React.FC<AccountViewProps> = ({accountInfo}) => {
     return (
         <View style={styles.accountView}>
-            <Text style={styles.baseText}>
+            <Text style={styles.subHeadingText}>
                 {accountInfo.account.name}
             </Text>
             <SpendingAnalysisView

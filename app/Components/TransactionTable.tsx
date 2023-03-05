@@ -1,5 +1,5 @@
 import { AccountInfo } from '../Shared/Banking';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import styles from '../Utils/Styles';
 import { CurrencyCode, numberToCurrency } from '../Utils/Tools';
 
@@ -25,36 +25,28 @@ const TransactionTable: React.FC<TransactionTableProps> = ({accountInfo}) => {
         }
         transactions.push(accountInfo.transactions[i]);
     }
-    var tableRows = transactions.map((categorisedTransaction, index) => {
+    var rows = transactions.map((categorisedTransaction, index) => {
         const transaction = categorisedTransaction.transaction;
         const tableRowId = index + tableId + transaction.id + transaction.timestamp + transaction.description;
         const transactionDate = new Date(Date.parse(transaction.timestamp)).toLocaleDateString();
-        const textLength = 16;
+        const textLength = 15;
         return (
-            <tr key={tableRowId}>
-                <td>{truncateText(transaction.description, textLength)}</td>
-                <td>{numberToCurrency(transaction.amount, CurrencyCode.GDP)}</td>
-                <td>{transactionDate}</td>
-                {/* <td>{truncateText(categorisedTransaction.category, textLength)}</td>
-                <td>{truncateText(categorisedTransaction.subCategory, textLength)}</td> */}
-            </tr>
+            <View key={tableRowId} style={styles.containerTableHeader}>
+                <Text numberOfLines={1} style={styles.row1Text}>{truncateText(transaction.description, textLength)}</Text>
+                <Text style={styles.rowText}>{numberToCurrency(transaction.amount, CurrencyCode.GDP)}</Text>
+                <Text style={styles.rowText}>{transactionDate}</Text>
+            </View>
         )
     })
     var table = (
-        <table style={styles.baseText}>
-            <thead>
-                <tr>
-                    <th>Description</th>
-                    <th>Amount</th>
-                    <th>Time</th>
-                    {/* <th>Category</th>
-                    <th>Sub Category</th> */}
-                </tr>
-            </thead>
-            <tbody>
-                {tableRows}
-            </tbody>
-        </table>
+        <View style={styles.containerRowsStart}>
+            <View style={styles.containerTableHeader}>
+                <Text style={styles.rowHeaderText}>Description</Text>
+                <Text style={styles.rowHeaderText}>Amount</Text>
+                <Text style={styles.rowHeaderText}>Time</Text>
+            </View>
+            {rows}
+        </View>
     )
     return (
         accountInfo.transactions.length ? table : <Text style={styles.baseText}>No Data</Text>
