@@ -129,7 +129,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             if (transaction.amount > 0){
                 credit += transaction.amount;
             }
-            var categoryDetails = OpenBankingApiHelper.getSpendingInfoCategory(transaction);
+            var categoryDetails = OpenBankingApiHelper.getSpendingInfoCategory(transaction, openBankingApiConfig);
+            context.log(categoryDetails);
             if (categoryDetails.spendingInfoCategory == SpendingInfoCategory.Income){
                 income[categoryDetails.spendingInfoSubCategory] += transaction.amount;
             }

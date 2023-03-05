@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, ActivityIndicator } from 'react-native';
 import { env } from '../Utils/Env';
 import styles from '../Utils/Styles';
-import { OpenBankingApiConfig, SpendingInfoSubCategory } from '../Shared/Banking';
+import { OpenBankingApiConfig } from '../Shared/Banking';
 import { SpendingInfoIncomeCategory, SpendingInfoSavingCategory } from '../Shared/Banking';
 import { SpendingInfoSpendingCategory, SpendingInfoSubscriptionCategory } from '../Shared/Banking';
 import { SpendingInfoResponse, SpendingInfo } from '../Shared/Banking';
-import PieChart, { PieChartSegmentData } from './PieChart';
+import SpendingPieChart, { PieChartSegmentData } from './SpendingPieChart';
 import AccountView from './AccountView';
 
 type SpendingViewProps = {
@@ -155,22 +155,22 @@ const SpendingView = ({ openBankingApiConfig, authToken }: SpendingViewProps) =>
             return (
                 <View style={styles.container}>
                     <View style={styles.card}>
-                        <PieChart
+                        <SpendingPieChart
                             segmentData={incomeDatas}
                             radius={pieChartRadius}
                             title={"Income"}
                         />
-                        <PieChart
+                        <SpendingPieChart
                             segmentData={subscriptionDatas}
                             radius={pieChartRadius}
                             title={"Subscriptions"}
                         />
-                        <PieChart
+                        <SpendingPieChart
                             segmentData={spendingDatas}
                             radius={pieChartRadius}
                             title={"Spending"}
                         />
-                        <PieChart
+                        <SpendingPieChart
                             segmentData={savingDatas}
                             radius={pieChartRadius}
                             title={"Saving"}

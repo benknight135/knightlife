@@ -14,7 +14,7 @@ type PieChartProps = {
     title: string
 };
 
-const PieChart = ({ segmentData, radius, title }: PieChartProps) => {
+const SpendingPieChart = ({ segmentData, radius, title }: PieChartProps) => {
     const currencyCode = CurrencyCode.GDP;
     const circleCircumference = 2 * Math.PI * radius;
 
@@ -63,7 +63,7 @@ const PieChart = ({ segmentData, radius, title }: PieChartProps) => {
             }
         )
         prevH = h;
-        prevAngle = prevAngle + (value / absTotal) * 360;
+        prevAngle = prevAngle + (absValue / absTotal) * 360;
     }
 
     var segmentCircles = segments.map((segment, index) => {
@@ -116,5 +116,5 @@ const PieChart = ({ segmentData, radius, title }: PieChartProps) => {
     )
 };
 
-export default PieChart;
+export default SpendingPieChart;
 export { PieChartSegmentData };

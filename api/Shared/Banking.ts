@@ -699,6 +699,12 @@ const spendingCategoryItems = [
   }
 ]
 
+function randomEnum<T>(anEnum: T): string {
+  const enumKeys = Object.keys(anEnum);
+  const index = enumKeys[Math.floor(Math.random() * enumKeys.length)];
+  return index;
+}
+
 class OpenBankingApiHelper {
 
   private static matchTransaction(transaction: Transaction, itemList: SpendingInfoCategoryMatchesList): GetSpendingInfoMatchProps {
@@ -751,7 +757,32 @@ class OpenBankingApiHelper {
     return undefined;
   }
 
-  public static getSpendingInfoCategory(transaction: Transaction): GetSpendingInfoCategoryProps {
+  public static getSpendingInfoCategory(transaction: Transaction, apiConfig: OpenBankingApiConfig): GetSpendingInfoCategoryProps {
+    if (apiConfig.useSandbox){
+      const spendingInfoCategory = SpendingInfoCategory[randomEnum(SpendingInfoCategory)];
+      var spendingInfoSubCategory: SpendingInfoSubCategory;
+      switch(spendingInfoCategory){
+        case SpendingInfoCategory.Income:
+          spendingInfoSubCategory = SpendingInfoIncomeCategory[randomEnum(SpendingInfoIncomeCategory)];
+          break;
+        case SpendingInfoCategory.Saving:
+          spendingInfoSubCategory = SpendingInfoSavingCategory[randomEnum(SpendingInfoSavingCategory)];
+          break;
+        case SpendingInfoCategory.Spending:
+          spendingInfoSubCategory = SpendingInfoSpendingCategory[randomEnum(SpendingInfoSpendingCategory)];
+          break;
+        case SpendingInfoCategory.Subscription:
+          spendingInfoSubCategory = SpendingInfoSubscriptionCategory[randomEnum(SpendingInfoSubscriptionCategory)];
+          break;
+        case SpendingInfoCategory.Ignore:
+          spendingInfoSubCategory = SpendingInfoIgnoreCategory[randomEnum(SpendingInfoIgnoreCategory)];
+          break;
+      }
+      return {
+        spendingInfoCategory: spendingInfoCategory,
+        spendingInfoSubCategory: spendingInfoSubCategory
+      }
+    }
     if (OpenBankingApiHelper.matchTransaction(transaction, ignoreCategoryItems).found){
       return {
         spendingInfoCategory: SpendingInfoCategory.Ignore,
