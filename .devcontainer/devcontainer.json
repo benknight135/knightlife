@@ -1,19 +1,19 @@
 {
     "name": "knightlife",
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-    "features": {
-        "ghcr.io/devcontainers/features/node:1": {
-            "version": "lts"
-		},
-	    "ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools:1": {
-	    	"version": "latest"
-	    }
-    },
+//     "features": {
+//         "ghcr.io/devcontainers/features/node:1": {
+//             "version": "lts"
+// 		},
+// 	    "ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools:1": {
+// 	    	"version": "latest"
+// 	    }
+//     },
     "customizations": {
         "vscode": {
             "extensions": ["ms-azuretools.vscode-azurefunctions"]
         }
     },
-    "remoteEnv": {"NODE_OPTIONS": "--openssl-legacy-provider"},
-	    "postCreateCommand": "./init.sh"
+//     "remoteEnv": {"NODE_OPTIONS": "--openssl-legacy-provider"},
+// 	    "postCreateCommand": "./init.sh"
 }
