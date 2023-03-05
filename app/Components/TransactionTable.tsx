@@ -1,9 +1,9 @@
 import { AccountInfo } from '../Shared/Banking';
 import { Text } from 'react-native';
 import styles from '../Utils/Styles';
-import { CurrencyCode, numberToCurrency } from '../Utils/Convert';
+import { CurrencyCode, numberToCurrency } from '../Utils/Tools';
 
-type TransactionTableProps = {
+interface TransactionTableProps {
     accountInfo: AccountInfo;
 };
 
@@ -15,7 +15,7 @@ function truncateText(text: string, maxLength: number): string {
     return truncText;
 }
 
-const TransactionTable = ({ accountInfo }: TransactionTableProps) => {
+const TransactionTable: React.FC<TransactionTableProps> = ({accountInfo}) => {
     const tableId = accountInfo.account.id + "table";
     var transactions = []
     const maxTransactions = 30;

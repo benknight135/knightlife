@@ -1,12 +1,12 @@
-import { numberToCurrency, CurrencyCode } from '../Utils/Convert';
+import { numberToCurrency, CurrencyCode } from '../Utils/Tools';
 import styles from '../Utils/Styles';
 import { AccountInfo } from '../Shared/Banking';
 
-type SpendingAnalysisViewProps = {
+interface SpendingAnalysisViewProps {
     accountInfo: AccountInfo
 };
 
-const SpendingAnalysisView = ({ accountInfo }: SpendingAnalysisViewProps) => {
+const SpendingAnalysisView: React.FC<SpendingAnalysisViewProps> = ({accountInfo}) => {
     const currencyCode = CurrencyCode.GDP;
     return (
         <table style={styles.baseText}>

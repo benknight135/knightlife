@@ -3,10 +3,9 @@ import { ActivityIndicator } from 'react-native';
 import { env } from '../Utils/Env';
 import { OpenBankingApiConfig } from '../Shared/Banking';
 import BankConnectButton from './BankConnectButton';
-import BankAccountList from './BankAccountList';
 import SpendingView from './SpendingView';
 
-type BankViewProps = {
+interface BankViewProps {
     openBankingApiAuthCode: string | null,
     redirectUri: string | null,
     openBankingApiConfig: OpenBankingApiConfig;
@@ -67,7 +66,7 @@ const useBankAuthToken = (
     return { authToken, isLoadingAuthToken };
 };
 
-const BankView = ({openBankingApiAuthCode, redirectUri, openBankingApiConfig}: BankViewProps) => {
+const BankView: React.FC<BankViewProps> = ({openBankingApiAuthCode, redirectUri, openBankingApiConfig}) => {
     if (redirectUri == null){
         return <ActivityIndicator />
     }

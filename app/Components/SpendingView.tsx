@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { env } from '../Utils/Env';
 import styles from '../Utils/Styles';
 import { OpenBankingApiConfig } from '../Shared/Banking';
@@ -9,7 +9,7 @@ import { SpendingInfoResponse, SpendingInfo } from '../Shared/Banking';
 import SpendingPieChart, { PieChartSegmentData } from './SpendingPieChart';
 import AccountView from './AccountView';
 
-type SpendingViewProps = {
+interface SpendingViewProps {
     openBankingApiConfig: OpenBankingApiConfig;
     authToken: string | null;
 };
@@ -69,7 +69,7 @@ const useSpendingInfo = (authToken: string, openBankingApiConfig: OpenBankingApi
     return { spendingInfo, isLoadingSpendingInfo };
 };
 
-const SpendingView = ({ openBankingApiConfig, authToken }: SpendingViewProps) => {
+const SpendingView: React.FC<SpendingViewProps> = ({openBankingApiConfig, authToken}) => {
     if (authToken != null) {
         const { spendingInfo, isLoadingSpendingInfo } = useSpendingInfo(authToken, openBankingApiConfig);
         if (isLoadingSpendingInfo) {
@@ -98,10 +98,10 @@ const SpendingView = ({ openBankingApiConfig, authToken }: SpendingViewProps) =>
             }
             for (var i = 0; i < spendingInfo.accountsInfo.length; i++) {
                 for (var category in SpendingInfoSubscriptionCategory){
-                    subscriptions[category] += -spendingInfo.accountsInfo[i].analysis.subscriptions[category];
+                    subscriptions[category] += spendingInfo.accountsInfo[i].analysis.subscriptions[category];
                 }
                 for (var category in SpendingInfoSpendingCategory){
-                    spending[category] += -spendingInfo.accountsInfo[i].analysis.spending[category];
+                    spending[category] += spendingInfo.accountsInfo[i].analysis.spending[category];
                 }
                 for (var category in SpendingInfoIncomeCategory){
                     income[category] += spendingInfo.accountsInfo[i].analysis.income[category];
@@ -147,7 +147,6 @@ const SpendingView = ({ openBankingApiConfig, authToken }: SpendingViewProps) =>
             const accountViews = spendingInfo.accountsInfo.map((accountInfo, index) => (
                 <AccountView
                     accountInfo={accountInfo}
-                    index={index}
                     key={accountInfo.account.id + "AccountView"}
                 />
             ));
@@ -157,21 +156,25 @@ const SpendingView = ({ openBankingApiConfig, authToken }: SpendingViewProps) =>
                     <View style={styles.card}>
                         <SpendingPieChart
                             segmentData={incomeDatas}
+                            redNegative={true}
                             radius={pieChartRadius}
                             title={"Income"}
                         />
                         <SpendingPieChart
                             segmentData={subscriptionDatas}
+                            redNegative={false}
                             radius={pieChartRadius}
                             title={"Subscriptions"}
                         />
                         <SpendingPieChart
                             segmentData={spendingDatas}
+                            redNegative={false}
                             radius={pieChartRadius}
                             title={"Spending"}
                         />
                         <SpendingPieChart
                             segmentData={savingDatas}
+                            redNegative={true}
                             radius={pieChartRadius}
                             title={"Saving"}
                         />

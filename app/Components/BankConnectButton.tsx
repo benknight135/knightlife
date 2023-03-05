@@ -3,13 +3,13 @@ import { ActivityIndicator } from 'react-native';
 import LinkButton from './LinkButton'
 import { OpenBankingApiConfig, OpenBankingApiHelper } from '../Shared/Banking';
 
-type BankConnectButtonProps = {
+interface BankConnectButtonProps {
   title: string;
   openBankingApiConfig: OpenBankingApiConfig;
   redirectUri: string;
 };
 
-const BankConnectButton = ({title, openBankingApiConfig, redirectUri}: BankConnectButtonProps) => {
+const BankConnectButton: React.FC<BankConnectButtonProps> = ({title, openBankingApiConfig, redirectUri}) => {
   try{
     var url: string = OpenBankingApiHelper.getCodeUrl(openBankingApiConfig, redirectUri);
   } catch {

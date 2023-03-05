@@ -1,12 +1,12 @@
 import React, {useCallback} from 'react';
 import {Alert, Button, Linking, Platform} from 'react-native';
 
-type LinkButtonProps = {
+interface LinkButtonProps {
   title: string;
   url: string;
 };
 
-const LinkButton = ({title, url}: LinkButtonProps) => {
+const LinkButton: React.FC<LinkButtonProps> = ({title, url}) => {
   const handlePress = useCallback(async () => {
     // Checking if the link is supported for links with custom URL scheme.
     const supported = await Linking.canOpenURL(url);

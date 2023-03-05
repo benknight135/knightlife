@@ -1,35 +1,50 @@
-import React from 'react';
-import { View, Text } from "react-native";
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity } from "react-native";
 import styles from '../Utils/Styles';
 import Svg, { G, Circle } from "react-native-svg";
-import { numberToCurrency, CurrencyCode } from '../Utils/Convert';
+import { numberToCurrency, CurrencyCode } from '../Utils/Tools';
 
 type PieChartSegmentData = {
     amount: number
 }
 
-type PieChartProps = {
+interface Props {
     segmentData: Array<PieChartSegmentData>,
+    redNegative: boolean,
     radius: number,
     title: string
 };
 
-const SpendingPieChart = ({ segmentData, radius, title }: PieChartProps) => {
+const SpendingPieChart: React.FC<Props> = ({segmentData, radius, redNegative, title}) => {
+    const [selectedSegment, setSelectedSegment] = useState(0);
     const currencyCode = CurrencyCode.GDP;
     const circleCircumference = 2 * Math.PI * radius;
+
+    interface Segment{
+        color: string,
+        strokeDashoffset: number,
+        angle: number,
+        percentage: number,
+        selected: boolean
+    }
 
     var absTotal = 0;
     var total = 0;
     for (var i = 0; i < segmentData.length; i++) {
         var value = segmentData[i].amount;
         var absValue = Math.abs(value);
-        absTotal += value;
+        absTotal += absValue;
         total += value;
     }
 
-    var segments = []
+    var segments: Array<Segment> = []
     var prevAngle = 0;
     var prevH = 0;
+    var h_index = 0;
+    var h_step = (360-10) / i;
+    if (h_step < 10){
+        h_step = 10;
+    }
     for (var i = 0; i < segmentData.length; i++) {
         var value = segmentData[i].amount;
         if (value == 0){
@@ -37,22 +52,30 @@ const SpendingPieChart = ({ segmentData, radius, title }: PieChartProps) => {
         }
         var absValue = Math.abs(value);
         var percentage = (absValue / absTotal) * 100;
+        if (percentage < 1){
+            continue;
+        }
         var strokeDashoffset = circleCircumference - (circleCircumference * percentage) / 100;
         var h = 0;
         var s = 50;
         var l = 50;
-        if (value < 0){
+        if (value < 0 && redNegative){
             // mark negative values as red
             h = 0;
             s = 75;
         } else {
-            // make sure the next colour isn't similar to the colour before
-            var h_diff = 0;
-            var h = 0;
-            while(h_diff <= 20 || h < 20 || h > 360 - 20){
-                h = 1 + Math.random() * (360 - 1);
-                h_diff = Math.abs(h - prevH);
+            // // make sure the next colour isn't similar to the colour before
+            // var h_diff = 0;
+            // var h = 0;
+            // while(h_diff <= 20 || h < 20 || h > 360 - 20){
+            //     h = 1 + Math.random() * (360 - 1);
+            //     h_diff = Math.abs(h - prevH);
+            // }
+            h = 10 + (h_index * h_step) * (360 - 10);
+            if (h_index > 10){
+                h_index = 0;
             }
+            h_index++;
         }
         var colour = 'hsl(' + h + ',' + s + '%,' + l + '%)';
         segments.push(
@@ -60,35 +83,69 @@ const SpendingPieChart = ({ segmentData, radius, title }: PieChartProps) => {
                 color: colour,
                 strokeDashoffset: strokeDashoffset,
                 angle: prevAngle,
+                percentage: percentage,
+                selected: i == selectedSegment
             }
         )
         prevH = h;
         prevAngle = prevAngle + (absValue / absTotal) * 360;
     }
 
+    var segmentButtons = segments.map((segment, index) => {
+        const key = index;
+        var height = 17;
+        var width = 17;
+        if (segment.selected){
+            height += 2;
+            width += 2;
+        }
+        return(
+            <View key={key} style={styles.cardWheelButtonsContent}>
+                <TouchableOpacity
+                    style={{
+                        height: height, width: width, backgroundColor: segment.color,
+                        borderRadius: 2,
+                    }}
+                    onPress={() => setSelectedSegment(index)}
+                ><Text></Text></TouchableOpacity>
+                {/* <Button title="" style={} color={segment.color} onPress={() => setSelectedSegment(index)}></Button> */}
+            </View>
+        )
+    });
+
     var segmentCircles = segments.map((segment, index) => {
+        var strokeWidth = 30;
+        var radiusV = radius;
+        var strokeDashoffset = segment.strokeDashoffset;
+        var strokeDasharray = circleCircumference;
+        if (segment.selected){
+            radiusV = radius + 2.5;
+            strokeDasharray = 2 * Math.PI * radiusV;
+            strokeDashoffset = strokeDasharray - (strokeDasharray * segment.percentage) / 100;
+            strokeWidth = strokeWidth + 5;
+        }
         const key = index;
         return (
             <Circle
                 key={key}
                 cx="50%"
                 cy="50%"
-                r={radius}
+                r={radiusV}
                 stroke={segment.color}
                 fill="transparent"
-                strokeWidth="35"
-                strokeDasharray={circleCircumference}
-                strokeDashoffset={segment.strokeDashoffset}
+                strokeWidth={strokeWidth}
+                strokeDasharray={strokeDasharray}
+                strokeDashoffset={strokeDashoffset}
                 rotation={segment.angle}
-                originX="90"
-                originY="90"
+                originX={90}
+                originY={90}
                 strokeLinecap="butt"
             />
         )
     });
 
     return (
-        <View style={styles.cardContent}>
+        <View style={styles.cardWheelContent}>
             <Text style={styles.baseText}>{title}</Text>
             <View style={styles.cardContent}>
                 <Svg height="160" width="160" viewBox="0 0 180 180">
@@ -111,6 +168,9 @@ const SpendingPieChart = ({ segmentData, radius, title }: PieChartProps) => {
                 <Text style={styles.pieChartLabel}>
                     {numberToCurrency(total, currencyCode)}
                 </Text>
+            </View>
+            <View style={styles.cardWheelButtons}>
+                {segmentButtons}
             </View>
         </View>
     )

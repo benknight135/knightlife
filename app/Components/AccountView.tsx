@@ -5,11 +5,10 @@ import SpendingAnalysisView from './SpendingAnalysisView';
 import TransactionTable from './TransactionTable';
 
 type AccountViewProps = {
-    accountInfo: AccountInfo;
-    index: number;
+    accountInfo: AccountInfo
 };
 
-const AccountView = ({ accountInfo }: AccountViewProps) => {
+const AccountView: React.FC<AccountViewProps> = ({accountInfo}) => {
     return (
         <View style={styles.accountView}>
             <Text style={styles.baseText}>

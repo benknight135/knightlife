@@ -4,7 +4,7 @@ import { env } from '../Utils/Env';
 import { OpenBankingApiConfig } from '../Shared/Banking';
 import { AccountsResponse, Accounts } from '../Shared/Banking';
 
-type BankAccoutLinkProps = {
+interface BankAccoutLinkProps {
     openBankingApiConfig: OpenBankingApiConfig;
     authToken: string | null;
 };
@@ -64,7 +64,7 @@ const useAccounts = (authToken: string, openBankingApiConfig: OpenBankingApiConf
     return { accounts, isLoadingAccounts };
 };
 
-const BankAccountList = ({openBankingApiConfig, authToken}: BankAccoutLinkProps) => {
+const BankAccountList: React.FC<BankAccoutLinkProps> = ({openBankingApiConfig, authToken}) => {
     if (authToken != null){
         const { accounts, isLoadingAccounts } = useAccounts(authToken, openBankingApiConfig);
         if (isLoadingAccounts){

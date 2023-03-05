@@ -96,7 +96,7 @@ const useAPIVersion = () => {
   return { apiVersion, isLoadingAPIVersion };
 };
 
-export default function App() {
+const App: React.FunctionComponent = () => {
   var openBankingApiConfig: OpenBankingApiConfig = getOpenBankingConfig();
 
   const { startUrl: appStartUrl, processing: isLoadingAppStartURL } = useAppStartURL();
@@ -106,6 +106,10 @@ export default function App() {
   var redirectUri: string | null = null;
   if (appStartUrl != null) {
     redirectUri = new URL("/callback", appStartUrl.origin).toString();
+  }
+
+  function handlePressed() {
+    console.log("handlePressed")
   }
 
   return (
@@ -133,3 +137,5 @@ export default function App() {
     </View>
   );
 }
+
+export default App;
