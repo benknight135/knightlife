@@ -88,11 +88,26 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         });
 
         context.log("Filtering transactions for account: " + account.name);
+        
+        const now = new Date();
+        var fromUnix = 0;
+        var untilUnix = 0;
+        if (now.getDate() < 5){ // when we are at the start of a new month show last months data
+            // From start of last month to the start of this month
+            var lastMonth: number = now.getMonth()-1;
+            var lastMonthYear: number = now.getFullYear();
+            if (lastMonth < 0){
+                lastMonth = 11;
+                lastMonthYear -= 1;
+            }
+            fromUnix = new Date(lastMonthYear, lastMonth, 1).getTime() / 1000;
+            untilUnix = new Date(now.getFullYear(), now.getMonth(), 1).getTime() / 1000;
+        } else { // once we are 5 days into the current month show this months data
+            // From start of this month to now
+            fromUnix = new Date(now.getFullYear(), now.getMonth(), 1).getTime() / 1000;
+            untilUnix = now.getTime() / 1000;
+        }
 
-        // const fromUnix = new Date().setDate(new Date().getDate() - 14) / 1000;
-        // const untilUnix = new Date().getTime() / 1000;
-        const fromUnix = new Date(2023, 0, 1).getTime() / 1000;
-        const untilUnix = new Date(2023, 1, 1).getTime() / 1000;
         var filteredTransactions = sortedTransactions.filter(transaction =>
             (new Date(transaction.timestamp).getTime() / 1000) >= fromUnix && 
             (new Date(transaction.timestamp).getTime() / 1000) <= untilUnix);
