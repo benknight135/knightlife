@@ -18,7 +18,7 @@ function truncateText(text: string, maxLength: number): string {
 const TransactionTable: React.FC<TransactionTableProps> = ({accountInfo}) => {
     const tableId = accountInfo.account.id + "table";
     var transactions = []
-    const maxTransactions = 30;
+    const maxTransactions = accountInfo.transactions.length;
     for (var i = 0; i < accountInfo.transactions.length; i++) {
         if (i > maxTransactions) {
             break;

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from "react-native";
 import styles from '../Utils/Styles';
 import Svg, { G, Circle } from "react-native-svg";
-import { numberToCurrency, CurrencyCode } from '../Utils/Tools';
+import { numberToCurrency, numberToString, CurrencyCode } from '../Utils/Tools';
 
 type PieChartSegmentData = {
+    name: string
     amount: number
 }
 
@@ -25,7 +26,9 @@ const SpendingPieChart: React.FC<Props> = ({segmentData, radius, redNegative, ti
         strokeDashoffset: number,
         angle: number,
         percentage: number,
-        selected: boolean
+        selected: boolean,
+        amount: number,
+        name: string
     }
 
     var absTotal = 0;
@@ -47,14 +50,8 @@ const SpendingPieChart: React.FC<Props> = ({segmentData, radius, redNegative, ti
     }
     for (var i = 0; i < segmentData.length; i++) {
         var value = segmentData[i].amount;
-        if (value == 0){
-            continue;
-        }
         var absValue = Math.abs(value);
         var percentage = (absValue / absTotal) * 100;
-        if (percentage < 1){
-            continue;
-        }
         var strokeDashoffset = circleCircumference - (circleCircumference * percentage) / 100;
         var h = 0;
         var s = 50;
@@ -84,7 +81,9 @@ const SpendingPieChart: React.FC<Props> = ({segmentData, radius, redNegative, ti
                 strokeDashoffset: strokeDashoffset,
                 angle: prevAngle,
                 percentage: percentage,
-                selected: i == selectedSegment
+                selected: i == selectedSegment,
+                amount: segmentData[i].amount,
+                name: segmentData[i].name
             }
         )
         prevH = h;
@@ -106,9 +105,8 @@ const SpendingPieChart: React.FC<Props> = ({segmentData, radius, redNegative, ti
                         height: height, width: width, backgroundColor: segment.color,
                         borderRadius: 2,
                     }}
-                    onPress={() => setSelectedSegment(index)}
-                ><Text></Text></TouchableOpacity>
-                {/* <Button title="" style={} color={segment.color} onPress={() => setSelectedSegment(index)}></Button> */}
+                    onPress={() => setSelectedSegment(index)}><Text/>
+                </TouchableOpacity>
             </View>
         )
     });
@@ -144,9 +142,14 @@ const SpendingPieChart: React.FC<Props> = ({segmentData, radius, redNegative, ti
         )
     });
 
+    var selectedSegmentDesc: string = numberToCurrency(
+        segments[selectedSegment].amount, currencyCode);
+    selectedSegmentDesc += " (" + numberToString(
+        segments[selectedSegment].percentage, 2) + "%)";
+
     return (
         <View style={styles.cardWheelContent}>
-            <Text style={styles.baseText}>{title}</Text>
+            <Text style={styles.subHeadingText}>{title}</Text>
             <View style={styles.cardContent}>
                 <Svg height="160" width="160" viewBox="0 0 180 180">
                     <G rotation={-90} originX="90" originY="90">
@@ -169,6 +172,12 @@ const SpendingPieChart: React.FC<Props> = ({segmentData, radius, redNegative, ti
                     {numberToCurrency(total, currencyCode)}
                 </Text>
             </View>
+            <Text style={styles.pieChartDescLabel}>
+                {segments[selectedSegment].name}
+            </Text>
+            <Text style={styles.pieChartDescLabel}>
+                {selectedSegmentDesc}
+            </Text>
             <View style={styles.cardWheelButtons}>
                 {segmentButtons}
             </View>

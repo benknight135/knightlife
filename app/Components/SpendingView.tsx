@@ -118,6 +118,7 @@ const SpendingView: React.FC<SpendingViewProps> = ({openBankingApiConfig, authTo
             for (var category in SpendingInfoSubscriptionCategory){
                 subscriptionDatas.push(
                     {
+                        name: category,
                         amount: subscriptions[category]
                     }
                 );
@@ -125,6 +126,7 @@ const SpendingView: React.FC<SpendingViewProps> = ({openBankingApiConfig, authTo
             for (var category in SpendingInfoSpendingCategory){
                 spendingDatas.push(
                     {
+                        name: category,
                         amount: spending[category]
                     }
                 );
@@ -132,6 +134,7 @@ const SpendingView: React.FC<SpendingViewProps> = ({openBankingApiConfig, authTo
             for (var category in SpendingInfoIncomeCategory){
                 incomeDatas.push(
                     {
+                        name: category,
                         amount: income[category]
                     }
                 );
@@ -139,6 +142,7 @@ const SpendingView: React.FC<SpendingViewProps> = ({openBankingApiConfig, authTo
             for (var category in SpendingInfoSavingCategory){
                 savingDatas.push(
                     {
+                        name: category,
                         amount: saving[category]
                     }
                 );
