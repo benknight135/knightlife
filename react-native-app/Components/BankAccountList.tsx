@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { env } from '../Utils/Env';
-import { OpenBankingApiConfig } from '../Shared/Banking';
-import { AccountsResponse, Accounts } from '../Shared/Banking';
+import { OpenBankingApiConfig } from 'knightlife-api';
+import { AccountsResponse, Accounts } from 'knightlife-api';
 
 interface BankAccoutLinkProps {
     openBankingApiConfig: OpenBankingApiConfig;

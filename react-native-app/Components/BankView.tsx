@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { env } from '../Utils/Env';
-import { OpenBankingApiConfig } from '../Shared/Banking';
+import { OpenBankingApiConfig } from 'knightlife-api';
 import BankConnectButton from './BankConnectButton';
 import SpendingView from './SpendingView';
 

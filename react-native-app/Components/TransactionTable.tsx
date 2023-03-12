@@ -1,6 +1,6 @@
-import { AccountInfo } from '../Shared/Banking';
 import { Text, View } from 'react-native';
 import styles from '../Utils/Styles';
+import { AccountInfo } from 'knightlife-api';
 import { CurrencyCode, numberToCurrency } from '../Utils/Tools';
 
 interface TransactionTableProps {

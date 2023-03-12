@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
 import styles from '../Utils/Styles';
-import { AccountInfo } from '../Shared/Banking';
+import { AccountInfo } from 'knightlife-api';
 import SpendingAnalysisView from './SpendingAnalysisView';
 import TransactionTable from './TransactionTable';
 

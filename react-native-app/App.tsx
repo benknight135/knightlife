@@ -4,10 +4,13 @@ import { Linking, ActivityIndicator } from 'react-native';
 import styles from './Utils/Styles';
 import { env } from './Utils/Env';
 import BankView from './Components/BankView';
-import { OpenBankingApiConfig, OpenBankingApiProivder } from './Shared/Banking';
+import { OpenBankingApiConfig, OpenBankingApiProivder } from 'knightlife-api';
+import { version as apiVersion } from "knightlife-api";
+import { version as appVersion } from '../package.json';
 
 type APIVersion = {
-  version: string;
+  apiVersion: string,
+  azureApiVersion: string
 };
 
 const useAppStartURL = () => {
@@ -60,7 +63,7 @@ function getOpenBankingApiAuthCodeFromURL(url: URL | null): string | null {
 
 const useAPIVersion = () => {
   const [isLoadingAPIVersion, setLoadingAPIVersion] = useState<boolean>(true);
-  const [apiVersion, setAPIVersion] = useState<APIVersion>({ version: "0.0.0.0" });
+  const [apiVersion, setAPIVersion] = useState<APIVersion>({ apiVersion: "0.0.0", azureApiVersion: "0.0.0" });
 
   const apiEndpoint: string = env.API_BASE_URL + "/Version";
   const apiCode: string = env.API_ACCESS_KEY;
@@ -79,7 +82,10 @@ const useAPIVersion = () => {
         const response = await fetch(apiEndpoint, requestData);
         try {
           const json = await response.json();
-          setAPIVersion({ version: json.version });
+          setAPIVersion({
+            apiVersion: json.apiVersion,
+            azureApiVersion: json.azureApiVersion
+          });
         } catch (error) {
           console.error(error);
         }
@@ -108,10 +114,6 @@ const App: React.FunctionComponent = () => {
     redirectUri = new URL("/callback", appStartUrl.origin).toString();
   }
 
-  function handlePressed() {
-    console.log("handlePressed")
-  }
-
   return (
     <View style={styles.container}>
       {isLoadingAppStartURL ? (
@@ -128,10 +130,17 @@ const App: React.FunctionComponent = () => {
         <Text style={styles.baseText}>|</Text>
         <Text style={styles.baseText}>Created by Ben Knight</Text>
         <Text style={styles.baseText}>|</Text>
+        <Text style={styles.baseText}>App v{appVersion}</Text>
         {isLoadingAPIVersion ? (
           <ActivityIndicator />
         ) : (
-          <Text style={styles.baseText}>v{apiVersion.version}</Text>
+          <Text style={styles.baseText}>API v{apiVersion.apiVersion}</Text>
+        )}
+        <Text style={styles.baseText}>|</Text>
+        {isLoadingAPIVersion ? (
+          <ActivityIndicator />
+        ) : (
+          <Text style={styles.baseText}>Azure API v{apiVersion.apiVersion}</Text>
         )}
       </View>
     </View>

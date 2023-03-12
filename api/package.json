@@ -1,7 +1,7 @@
 {
   "name": "knightlife-api",
   "version": "1.0.6",
-  "description": "",
+  "description": "Knight Life API",
   "main": "src/index.js",
   "scripts": {},
   "devDependencies": {

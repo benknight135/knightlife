@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native';
 import { numberToCurrency, CurrencyCode } from '../Utils/Tools';
 import styles from '../Utils/Styles';
-import { AccountInfo } from '../Shared/Banking';
+import { AccountInfo } from 'knightlife-api';
 
 interface SpendingAnalysisViewProps {
     accountInfo: AccountInfo
