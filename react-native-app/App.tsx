@@ -5,8 +5,7 @@ import styles from './Utils/Styles';
 import { env } from './Utils/Env';
 import BankView from './Components/BankView';
 import { OpenBankingApiConfig, OpenBankingApiProivder } from 'knightlife-api';
-import { version as apiVersion } from "knightlife-api";
-import { version as appVersion } from '../package.json';
+import { version as knightlifeApiVersion } from "knightlife-api";
 
 type APIVersion = {
   apiVersion: string,
@@ -107,6 +106,7 @@ const App: React.FunctionComponent = () => {
 
   const { startUrl: appStartUrl, processing: isLoadingAppStartURL } = useAppStartURL();
   const { apiVersion, isLoadingAPIVersion } = useAPIVersion();
+  const appVersion = "1.0.6";
 
   var openBankingApiAuthCode: string | null = getOpenBankingApiAuthCodeFromURL(appStartUrl);
   var redirectUri: string | null = null;
@@ -126,21 +126,22 @@ const App: React.FunctionComponent = () => {
         />
       )}
       <View style={styles.card}>
-        <Text style={styles.baseText}>Knight Life</Text>
-        <Text style={styles.baseText}>|</Text>
         <Text style={styles.baseText}>Created by Ben Knight</Text>
         <Text style={styles.baseText}>|</Text>
         <Text style={styles.baseText}>App v{appVersion}</Text>
+        <Text style={styles.baseText}>|</Text>
+        <Text style={styles.baseText}>App KL API v{knightlifeApiVersion}</Text>
+        <Text style={styles.baseText}>|</Text>
         {isLoadingAPIVersion ? (
           <ActivityIndicator />
         ) : (
-          <Text style={styles.baseText}>API v{apiVersion.apiVersion}</Text>
+          <Text style={styles.baseText}>Azure API v{apiVersion.azureApiVersion}</Text>
         )}
         <Text style={styles.baseText}>|</Text>
         {isLoadingAPIVersion ? (
           <ActivityIndicator />
         ) : (
-          <Text style={styles.baseText}>Azure API v{apiVersion.apiVersion}</Text>
+          <Text style={styles.baseText}>Azure KL API v{apiVersion.apiVersion}</Text>
         )}
       </View>
     </View>

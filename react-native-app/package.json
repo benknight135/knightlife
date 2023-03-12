@@ -4,11 +4,13 @@
   "description": "React native app to monitor life",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
+    "build": "expo export:web",
+    "build:github": "npm run build",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:azure": "expo export:web"
+    "test": "echo \"No tests yet...\""
   },
   "engines": {
     "node": ">=18.0.0"
@@ -16,7 +18,7 @@
   "dependencies": {
     "expo": "~48.0.0",
     "expo-status-bar": "~1.4.4",
-    "knightlife-api": "file:../api",
+    "knightlife-api": "file:../api/knightlife-api-1.0.6.tgz",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.71.3",

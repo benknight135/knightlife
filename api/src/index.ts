@@ -1,4 +1,3 @@
-import { version } from '../package.json';
 
 enum OpenBankingApiProivder {
   TrueLayer = 1,
@@ -1598,7 +1597,7 @@ class OpenBankingApiHelper {
   }
 }
 
-export { version };
+export const version = "1.0.6";
 export { OpenBankingApiProivder, OpenBankingApiConfig, OpenBankingApiHelper };
 export { Accounts, AccountsResponse };
 export { AccountsFetchResponse, TransactionsFetchResponse, BalanceFetchResponse };

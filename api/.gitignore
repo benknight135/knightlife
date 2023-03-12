@@ -1,0 +1,5 @@
+# TypeScript output
+dist
+
+# pack output
+knightlife-api-*.tgz
