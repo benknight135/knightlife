@@ -26,15 +26,18 @@ jobs:
         working-directory: api
       - name: Build Azure Api
         run: |
+          npm uninstall /knightlife-api
           npm install ../api/knightlife-api-*.tgz
           npm install
           npm run build:github
         working-directory: azure-api
       - name: Build React Native App
         run: |
+          npm uninstall /knightlife-api
           npm install ../api/knightlife-api-*.tgz
           npm install
           npm run build:github
+        working-directory: react-native-app
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
