@@ -1,0 +1,24 @@
+{
+  "name": "knightlife-azure-api",
+  "version": "1.0.6",
+  "description": "Knight Life Azure API",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "prestart": "npm run build",
+    "start": "func start --typescript",
+    "test": "echo \"No tests yet...\""
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "knightlife-api": "file:../api"
+  },
+  "devDependencies": {
+    "@azure/functions": "^3.0.0",
+    "@types/node": "^16.x",
+    "typescript": "^4.0.0"
+  },
+  "private": true
+}

@@ -1,7 +1,7 @@
 {
-  "name": "knightlife-app",
+  "name": "knightlife-react-native-app",
   "version": "1.0.6",
-  "description": "Monitor for the data of life",
+  "description": "React native app to monitor life",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
@@ -16,6 +16,7 @@
   "dependencies": {
     "expo": "~48.0.0",
     "expo-status-bar": "~1.4.4",
+    "knightlife-api": "file:../api",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.71.3",

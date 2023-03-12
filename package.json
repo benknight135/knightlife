@@ -1,11 +1,11 @@
 {
     "name": "knightlife-dev",
-    "version": "1.0.0",
+    "version": "1.0.6",
     "description": "Knight Life Development",
     "main": "index.js",
     "scripts": {
-        "start-api": "cd api && npm start",
-        "start-app": "cd app && npm run web",
+        "start-api": "cd azure-api && npm start",
+        "start-app": "cd react-native-app && npm run web",
         "start-dev": "concurrently \"npm:start-api\" \"npm:start-app\" ",
         "start-swa": "swa start http://127.0.0.1:19006 --api-location http://127.0.0.1:7071",
         "start": "concurrently \"npm:start-dev\" \"npm:start-swa\" "
