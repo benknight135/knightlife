@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
-import { OpenBankingApiConfig, OpenBankingApiHelper } from "knightlife-api";
+import { OpenBankingApiConfig, OpenBankingApiHelper } from "../Shared/KnightLifeApi";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a bank accounts request.');

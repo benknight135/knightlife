@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator } from 'react-native';
 import LinkButton from './LinkButton'
-import { OpenBankingApiConfig, OpenBankingApiHelper } from 'knightlife-api';
+import { OpenBankingApiConfig, OpenBankingApiHelper } from './KnightLifeApi';
 
 interface BankConnectButtonProps {
   title: string;

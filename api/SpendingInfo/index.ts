@@ -1,12 +1,13 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
-import { OpenBankingApiConfig, OpenBankingApiHelper, SpendingInfoResponse, SpendingInfoSavingCategory } from "knightlife-api";
-import { AccountsFetchResponse, TransactionsFetchResponse } from "knightlife-api";
-import { BalanceFetchResponse } from "knightlife-api";
-import { Account, AccountsInfo } from "knightlife-api";
-import { SpendingAnalysis } from "knightlife-api";
-import { SpendingInfoCategory } from "knightlife-api";
-import { SpendingInfoIncomeCategory, SpendingInfoSubscriptionCategory } from "knightlife-api";
-import { SpendingInfoSpendingCategory } from "knightlife-api";
+import { OpenBankingApiConfig, OpenBankingApiHelper } from "../Shared/KnightLifeApi";
+import { SpendingInfoResponse, SpendingInfoSavingCategory } from "../Shared/KnightLifeApi";
+import { AccountsFetchResponse, TransactionsFetchResponse } from "../Shared/KnightLifeApi";
+import { BalanceFetchResponse } from "../Shared/KnightLifeApi";
+import { Account, AccountsInfo } from "../Shared/KnightLifeApi";
+import { SpendingAnalysis } from "../Shared/KnightLifeApi";
+import { SpendingInfoCategory } from "../Shared/KnightLifeApi";
+import { SpendingInfoIncomeCategory, SpendingInfoSubscriptionCategory } from "../Shared/KnightLifeApi";
+import { SpendingInfoSpendingCategory } from "../Shared/KnightLifeApi";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a spending info request.');

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { env } from '../Utils/Env';
 import styles from '../Utils/Styles';
-import { OpenBankingApiConfig } from 'knightlife-api';
-import { SpendingInfoIncomeCategory, SpendingInfoSavingCategory } from 'knightlife-api';
-import { SpendingInfoSpendingCategory, SpendingInfoSubscriptionCategory } from 'knightlife-api';
-import { SpendingInfoResponse, SpendingInfo } from 'knightlife-api';
+import { OpenBankingApiConfig } from './KnightLifeApi';
+import { SpendingInfoIncomeCategory, SpendingInfoSavingCategory } from './KnightLifeApi';
+import { SpendingInfoSpendingCategory, SpendingInfoSubscriptionCategory } from './KnightLifeApi';
+import { SpendingInfoResponse, SpendingInfo } from './KnightLifeApi';
 import SpendingPieChart, { PieChartSegmentData } from './SpendingPieChart';
 import AccountView from './AccountView';
 

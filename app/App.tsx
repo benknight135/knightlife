@@ -4,8 +4,8 @@ import { Linking, ActivityIndicator } from 'react-native';
 import styles from './Utils/Styles';
 import { env } from './Utils/Env';
 import BankView from './Components/BankView';
-import { OpenBankingApiConfig, OpenBankingApiProivder } from 'knightlife-api';
-import { version as knightlifeApiVersion } from "knightlife-api";
+import { OpenBankingApiConfig, OpenBankingApiProivder } from './Components/KnightLifeApi';
+import { version as knightlifeApiVersion } from './Components/KnightLifeApi';
 
 type APIVersion = {
   apiVersion: string,

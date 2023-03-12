@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
-import { version as apiVersion } from "knightlife-api";
+import { version as apiVersion } from "../Shared/KnightLifeApi";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a version request.');
