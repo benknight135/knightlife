@@ -26,14 +26,14 @@ jobs:
         working-directory: api
       - name: Build Azure Api
         run: |
-          npm uninstall /knightlife-api
+          npm uninstall knightlife-api
           npm install ../api/knightlife-api-*.tgz
           npm install
           npm run build:github
         working-directory: azure-api
       - name: Build React Native App
         run: |
-          npm uninstall /knightlife-api
+          npm uninstall knightlife-api
           npm install ../api/knightlife-api-*.tgz
           npm install
           npm run build:github
