@@ -21,8 +21,8 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APP_DEPLOYMENT_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "app"
-          api_location: "api"
+          app_location: "react-native-app"
+          api_location: "azure-api"
           output_location: "web-build"
         env:
           OPEN_BANKING_USE_SANDBOX: false
