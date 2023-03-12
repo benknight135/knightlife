@@ -2,7 +2,7 @@
   "expo": {
     "name": "knightlife",
     "slug": "knightlife",
-    "version": "1.0.0",
+    "version": "1.0.6",
     "description": "Knight Life App",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -52,3 +52,4 @@ jobs:
           skip_api_build: true
         env:
           OPEN_BANKING_USE_SANDBOX: false
+          VERBOSE: true

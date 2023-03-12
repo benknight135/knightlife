@@ -1,6 +1,6 @@
 module.exports = {
-    name: 'MyApp',
-    version: '1.0.0',
+    name: 'knightlife',
+    version: '1.0.6',
     extra: {
         API_BASE_URL: process.env.API_BASE_URL || "/api",
         API_ACCESS_KEY: process.env.API_VERSION_ACCESS_KEY || "",
